@@ -1,0 +1,46 @@
+﻿@model FeeCollectorApplication.Models.Category
+
+<h1>Update</h1>
+
+<h2>@ViewBag.Message</h2>
+
+<form asp-controller="Category" asp-action="Update" method="post">
+
+    <input type="hidden" name="_id" value="@Model._id" />
+
+    <table border="1" cellpadding="10">
+        <tr>
+            <td>Object ID :</td>
+            <td>
+                <input asp-for="idCar"
+                       readonly="readonly" />
+            </td>
+        </tr>
+        <tr>
+            <td>Type:</td>
+            <td><input asp-for="type" /></td>
+        </tr>
+        <tr>
+            <td>Date:</td>
+            <td><input asp-for="date" /></td>
+        </tr>
+        <tr>
+            <td>Location:</td>
+            <td><input asp-for="location" /></td>
+        </tr>
+        <tr>
+            <td>Fee:</td>
+            <td><input asp-for="price" /></td>
+        </tr>
+        <tr>
+            <td>Pending Status:</td>
+            <td><input asp-for="pendingStatus" /></td>
+        </tr>
+        
+        <tr>
+            <td colspan="2">
+                <button type="submit">Save</button>
+            </td>
+        </tr>
+    </table>
+</form>

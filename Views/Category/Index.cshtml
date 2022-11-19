@@ -1,0 +1,46 @@
+﻿@model List<FeeCollectorApplication.Models.Category>
+
+
+<h2>@TempData["Message"]</h2>
+
+<br />
+<br />
+
+
+<table border="1" cellpadding="10" style="width:100%" class="h6">
+    <tr class="border-1">
+        <td class="text-primary border-1">ID</td>
+        <td class="text-primary border-1">License Plate Number</td>
+        <td class="text-primary border-1">Type</td>
+        <td class="text-primary border-1">Date</td>
+        <td class="text-primary border-1">Time</td>
+        <td class="text-primary border-1">Location</td>
+        <td class="text-primary border-1">Fee</td>
+        <td class="text-primary border-1">Pending Status</td>
+        <td class="text-primary border-1">Action</td>
+    </tr>
+    @foreach (var item in Model)
+    {
+        <tr>
+            <td class="border-1">@item._id</td>
+            <td class="border-1">@item.idCar</td>
+            <td class="border-1">@item.type</td>
+            <td class="border-1">@item.date</td>
+            <td class="border-1">@item.time</td>
+            <td class="border-1">@item.location</td>
+            <td class="border-1">@item.price vnd</td>
+            <td class="border-1">@item.pendingStatus</td>
+            <td class="border-1">
+                <div>
+                    <a asp-controller="Category" asp-action="Update"
+                   asp-route-id="@item._id" class="text-black">Edit</a>
+                </div>
+                <div class="text-black">
+                    <a asp-controller="Category" asp-action="ConfirmDelete"
+                   asp-route-id="@item._id" class="text-black">Delete</a>
+                </div>
+            </td>
+
+        </tr>
+    }
+</table>

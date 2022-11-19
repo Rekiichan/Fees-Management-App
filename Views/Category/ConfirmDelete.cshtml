@@ -1,0 +1,49 @@
+﻿@model FeeCollectorApplication.Models.Category
+
+<h2>Do you want to delete this object?</h2>
+
+<form asp-controller="Category" asp-action="Delete" method="post">
+
+    <input type="hidden" name="Id"
+           value="@Model._id" />
+
+    <table border="1" cellpadding="10">
+        <tr>
+            <td>ID:</td>
+            <td>@Model._id</td>
+        </tr>
+        <tr>
+            <td>License Plate Number:</td>
+            <td>@Model.idCar</td>
+        </tr>
+        <tr>
+            <td>Type:</td>
+            <td>@Model.type</td>
+        </tr>
+        <tr>
+            <td>Date:</td>
+            <td>@Model.date</td>
+        </tr>
+        <tr>
+            <td>Time:</td>
+            <td>@Model.time</td>
+        </tr>
+        <tr>
+            <td>Location:</td>
+            <td>@Model.location</td>
+        </tr>
+        <tr>
+            <td>Fee:</td>
+            <td>@Model.price</td>
+        </tr>
+        <tr>
+            <td>Pending Status:</td>
+            <td>@Model.pendingStatus</td>
+        </tr>
+        <tr>
+            <td colspan="2">
+                <button type="submit">Delete</button>
+            </td>
+        </tr>
+    </table>
+</form>
