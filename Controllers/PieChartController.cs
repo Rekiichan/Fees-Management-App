@@ -32,6 +32,7 @@ namespace FeeCollectorApplication.Controllers
                     countNo++;
                 }
             }
+
             double sum = 0;
             sum = countNo + countYes;
             countYes = countYes / sum * 100;
@@ -43,9 +44,19 @@ namespace FeeCollectorApplication.Controllers
                 new PendingStatus("Not Paid", Math.Round(countNo,1))
             };
 
+            ViewBag.DataPointsPendingStatus = JsonConvert.SerializeObject(dataPoints_PendingStatus);
+
+            return View();
+        }
+
+        public ActionResult Index2()
+        {
+            List<Category> category = _feeCollectorService.GetData();
+            
             double check_16 = 0;
             double check_30 = 0;
             double check_16_30 = 0;
+
             foreach (var item in category)
             {
                 if (item.type.Contains("16"))
@@ -64,7 +75,7 @@ namespace FeeCollectorApplication.Controllers
                     check_30++;
                 }
             }
-            sum = (check_16 + check_16_30 + check_30);
+            double sum = (check_16 + check_16_30 + check_30);
             check_16 = check_16 / sum * 100;
             check_16_30 = check_16_30 / sum * 100;
             check_30 = check_30 / sum * 100;
@@ -76,8 +87,6 @@ namespace FeeCollectorApplication.Controllers
                 new TypeCar("Cars above 30 seats", Math.Round(check_30,1))
             };
 
-
-            ViewBag.DataPointsPendingStatus = JsonConvert.SerializeObject(dataPoints_PendingStatus);
             ViewBag.DataPointsTypeCar = JsonConvert.SerializeObject(dataPoints_TypeCar);
 
             return View();

@@ -12,17 +12,17 @@
             exportEnabled: true,
             animationEnabled: true,
             title: {
-                text: "Parking Fee Statistics"
+                text: "Type Car Statistics"
             },
             data: [{
                 type: "pie",
                 startAngle: 180,
                 indexLabelFontFamily: "Garamond",
                 indexLabelFontSize: 20,
-                toolTipContent: "<b>{Pending Status}</b>: {value}%",
+                toolTipContent: "<b>{Type car}</b>: {value}%",
                 indexLabel: "{label}: {y}%",
-                dataPoints: @Html.Raw(ViewBag.DataPointsPendingStatus)
-                    }]
+                dataPoints: @Html.Raw(ViewBag.DataPointsTypeCar)
+                        }]
         });
         chart.render();
     }
