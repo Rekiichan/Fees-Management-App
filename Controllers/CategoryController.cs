@@ -4,6 +4,7 @@ using MongoDB.Driver;
 using FeeCollectorApplication.Models;
 using FeeCollectorApplication.Service;
 using System.Collections.Specialized;
+using Newtonsoft.Json;
 
 namespace MongoTest.Controllers
 {
@@ -22,6 +23,19 @@ namespace MongoTest.Controllers
                 return NotFound();
             }
             return View(model);
+        }
+
+        public IActionResult Insert()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        public IActionResult Insert(Category cat)
+        {
+            _feeCollectorService.Create(cat);
+            ViewBag.Message = "Collector added successfully!";
+            return View();
         }
 
         public IActionResult Update(string id)
@@ -43,10 +57,8 @@ namespace MongoTest.Controllers
             var result = _feeCollectorService._categoryCollection.UpdateOne(filter, updateDef);
             if (result.IsAcknowledged)
             {
-                ViewBag.Message = "Employee updated successfully!";
                 return RedirectToAction("Index");
             }
-            ViewBag.Message = "Error while updating Employee!";
             return View(cat);
         }
         public IActionResult ConfirmDelete(string id)
