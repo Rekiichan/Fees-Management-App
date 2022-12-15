@@ -5,6 +5,7 @@ using FeeCollectorApplication.Models;
 using FeeCollectorApplication.Service;
 using System.Collections.Specialized;
 using Newtonsoft.Json;
+using Microsoft.AspNetCore.Http;
 
 namespace MongoTest.Controllers
 {
@@ -15,6 +16,33 @@ namespace MongoTest.Controllers
         {
             _feeCollectorService = feeCollectorService;
         }
+        //public string timeProccess(string time1, string time2)
+        //{
+        //    bool checkPM1 = false;
+        //    bool checkPM2 = false;
+
+        //    if (time1.Contains("PM"))
+        //    {
+        //        checkPM1 = true;
+        //    }
+        //    if (time2.Contains("PM"))
+        //    {
+        //        checkPM2 = true;
+        //    }
+
+        //    time1.Remove(5);
+        //    time2.Remove(5);
+
+        //    var timeCvt1 = DateTime.ParseExact(time1, "H:mm", null, System.Globalization.DateTimeStyles.None);
+        //    var timeCvt2 = DateTime.ParseExact(time2, "H:mm", null, System.Globalization.DateTimeStyles.None);
+
+        //    if (checkPM1)
+        //    {
+        //        string time = "12:00";
+        //        var timeCvt = DateTime.ParseExact(time, "H:mm", null, System.Globalization.DateTimeStyles.None);
+        //        timeCvt1 = timeCvt1 + timeCvt1;
+        //    }
+        //}
         public IActionResult Index()
         {
             var model = _feeCollectorService.GetData();
@@ -22,7 +50,6 @@ namespace MongoTest.Controllers
             {
                 return NotFound();
             }
-
             return View(model);
         }
 
