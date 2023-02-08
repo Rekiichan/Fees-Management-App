@@ -1,5 +1,9 @@
-using FeeCollectorApplication.Service;
-using FeeCollectorApplication.Settings;
+
+using FeeCollectorApplication.DataAccess;
+using FeeCollectorApplication.Models.IModels;
+using Microsoft.EntityFrameworkCore;
+using MongoDB.Driver.Core.Configuration;
+using MySql.EntityFrameworkCore.Extensions;
 
 namespace FeeCollectorApplication
 {
@@ -11,12 +15,14 @@ namespace FeeCollectorApplication
 
             // Add services to the container.
 
-            builder.Services.AddControllers()
-    .AddJsonOptions(
-        options => options.JsonSerializerOptions.PropertyNamingPolicy = null);
-            builder.Services.Configure<FeeCollectorDatabaseSettings>(
-                builder.Configuration.GetSection("MongoDB"));
-            builder.Services.AddSingleton<FeeCollectorService>();
+            builder.Services.AddControllers();
+            // Add Database
+
+            builder.Services.AddEntityFrameworkMySQL().AddDbContext<ApplicationDbContext>(options =>
+            {
+                options.UseMySQL(builder.Configuration.GetConnectionString("DefaultConnection"));
+            });
+
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
