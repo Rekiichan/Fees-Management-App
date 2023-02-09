@@ -22,17 +22,17 @@ namespace FeeCollectorApplication.Models
         [JsonPropertyName("date")]
         public string? date { get; set; }
         [BsonElement]
-        [JsonPropertyName("time")]
+        [JsonPropertyName("time_start")]
         public string? time { get; set; }
         [BsonElement]
-        [JsonPropertyName("timeM")]
+        [JsonPropertyName("time_end")]
         public string? timeM { get; set; }
         [BsonElement]
         [JsonPropertyName("location")]
         public string? location { get; set; }
         [BsonElement]
         [JsonPropertyName("price")]
-        public Int32? price { get; set; }
+        public Int32 price { get; set; }
         [BsonElement]
         [JsonPropertyName("pendingStatus")]
         public bool pendingStatus { get; set; }
