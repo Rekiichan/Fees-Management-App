@@ -18,7 +18,7 @@
 //        [ProducesResponseType(StatusCodes.Status201Created)]
 //        [ProducesResponseType(StatusCodes.Status400BadRequest)]
 //        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-//        public string AddImageByIdCar([FromForm]IFormFile file, [FromForm] string idCar, [FromForm] string time)
+//        public string AddImageByIdCar([FromForm] IFormFile file, [FromForm] string idCar, [FromForm] string time_start)
 //        {
 //            string? imagePath = "";
 //            Console.WriteLine("start");
@@ -26,7 +26,7 @@
 //            if (file != null)
 //            {
 //                Console.WriteLine("start");
-//                string fileName = idCar + '-' + time;
+//                string fileName = idCar + '-' + time_start;
 //                var uploads = Path.Combine(wwwRootPath, @"images\");
 //                var extension = Path.GetExtension(file.FileName);
 
