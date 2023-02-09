@@ -11,5 +11,6 @@ namespace FeeCollectorApplication.Service
         public DbSet<Vehicle> Vehicles { get; set; }
         public DbSet<Bill> Bills { get; set; }
         public DbSet<Payment> Payments{ get; set; }
+        public DbSet<VehicleType> VehicleTypes { get; set; }
     }
 }

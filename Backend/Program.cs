@@ -24,8 +24,8 @@ namespace FeeCollectorApplication
                 builder.Configuration.GetSection("MongoDB"));
 
             builder.Services.AddSingleton<FeeCollectorService>();
-            // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
             //services cors

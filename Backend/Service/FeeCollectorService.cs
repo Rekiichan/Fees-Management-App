@@ -46,6 +46,14 @@ namespace FeeCollectorApplication.Service
             await _categoryCollection.DeleteOneAsync(x => x._id == id);
         public async Task Remove(string id) =>
             _categoryCollection.DeleteOne(x => x._id == id);
+        public void RemoveAll()
+        {
+            var model = _categoryCollection.Find(_ => true).ToList();
+            foreach (var item in model)
+            {
+                _categoryCollection.DeleteOne(u => u._id == item._id);
+            }
+        }
     }
 
 }

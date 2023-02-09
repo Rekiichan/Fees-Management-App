@@ -2,8 +2,8 @@
 
 namespace FeeCollectorApplication.Repository.IRepository
 {
-    public interface IVehicleRepository : IRepository<Vehicle>
+    public interface IVehicleTypeRepository : IRepository<VehicleType>
     {
-        void Update(Vehicle vehicle);
+        void Update(VehicleType vehicleType);
     }
 }

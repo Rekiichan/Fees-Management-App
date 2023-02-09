@@ -10,11 +10,11 @@ namespace FeeCollectorApplication.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class InfomationController : ControllerBase
+    public class VehicleController : ControllerBase
     {
         private readonly FeeCollectorService _feeCollectorService;
         private readonly IUnitOfWork _unitOfWork;
-        public InfomationController(FeeCollectorService feeCollectorService, IUnitOfWork unitOfWork)
+        public VehicleController(FeeCollectorService feeCollectorService, IUnitOfWork unitOfWork)
         {
             _feeCollectorService = feeCollectorService;
             _unitOfWork = unitOfWork;
@@ -23,12 +23,11 @@ namespace FeeCollectorApplication.Controllers
         public IActionResult GetAllData()
         {
             var model = _feeCollectorService.GetData();
-            var unit = _unitOfWork.Vehicle.GetAll();
-            if (unit.Count() < model.Count())
+            if (model.Count() > 0)
             {
-                updateDatabase(model, unit);
-                unit = _unitOfWork.Vehicle.GetAll();
+                updateDatabase(model);
             }
+            var unit = _unitOfWork.Vehicle.GetAll();
             return Ok(unit);
         }
         [HttpGet("{id}")]
@@ -41,40 +40,58 @@ namespace FeeCollectorApplication.Controllers
             }
             return Ok(obj);
         }
-        [HttpGet("{LicensePlateNumber}")]
-        public IActionResult GetDataByLicensePlate(string lp)
+        [HttpPost]
+        public IActionResult RequestVehicle(VehicleUpsert obj)
         {
-            var obj = _unitOfWork.Vehicle.GetAll().FirstOrDefault(u => u.license_plate_number == lp);
             if (obj == null)
             {
-                var unit = _unitOfWork.Vehicle.GetAll();
-                var model = _feeCollectorService.GetData();
-                if (unit.Count() < model.Count())
+                return BadRequest();
+            }
+            DateTime timeStart = DateTime.Now;
+            DateTime timeEnd = timeStart.AddHours(2);
+            var model = _unitOfWork.Vehicle.GetAll().ToArray();
+            for (int i = model.Count() - 1; i >= 0; i--)
+            {
+                if (model[i].license_plate_number == obj.license_plate_number)
                 {
-                    updateDatabase(model, unit);
-                    unit = _unitOfWork.Vehicle.GetAll();
+                    if (model[i].time_end.CompareTo(timeStart) >= 0)
+                    {
+                        return NoContent();
+                    }
                 }
-                else
+                if (model[i].time_end.CompareTo(timeStart) <= 0)
                 {
-                    return NotFound();
+                    break;
                 }
             }
-            return Ok(obj);
+            var temp = new Vehicle()
+            {
+                license_plate_number = obj.license_plate_number,
+                time_start = timeStart,
+                time_end = timeEnd,
+                image_url = obj.image_url,
+                vehicle_type = obj.vehicle_type,
+                location = obj.location
+            };
+            _unitOfWork.Vehicle.Add(temp);
 
+            float priceOfVehicleType = _unitOfWork.VehicleType.GetFirstOrDefault(u => u.vehicle_type == obj.vehicle_type).price;
+            Bill billCheck = _unitOfWork.Bill.GetFirstOrDefault(u => u.license_plate_number == obj.license_plate_number);
+            if (billCheck != null)
+            {
+                billCheck.price += priceOfVehicleType;
+                _unitOfWork.Bill.Update(billCheck);
+                return NoContent();
+            }
+            var billModel = new Bill()
+            {
+                license_plate_number = obj.license_plate_number,
+                price = priceOfVehicleType
+            };
+            _unitOfWork.Bill.Add(billModel);
+            _unitOfWork.Save();
+            return NoContent();
         }
-        //[HttpPut("{id}")]
-        //public IActionResult Update(int id, Vehicle vehicle)
-        //{
-        //    var obj = _unitOfWork.Vehicle.GetFirstOrDefault(u => u.Vehicle_id == id);
-        //    if (obj == null)
-        //    {
-        //        return NotFound();
-        //    }
-    
-        //    _unitOfWork.Vehicle.Update(vehicle);
-        //    _unitOfWork.Save();
-        //    return NoContent();
-        //}
 
         [HttpDelete("{id}")]
         public IActionResult DeleteById(int id)
@@ -87,6 +104,7 @@ namespace FeeCollectorApplication.Controllers
             _unitOfWork.Vehicle.Remove(obj);
             return Ok("Delete success!");
         }
+
         #region function_process
 
         //public string timeProccess(string time1, string time2)
@@ -111,13 +129,13 @@ namespace FeeCollectorApplication.Controllers
 
         //    if (checkPM1)
         //    {
-        //        string time_start = "12:00";
-        //        var timeCvt = DateTime.ParseExact(time_start, "H:mm", null, System.Globalization.DateTimeStyles.None);
+        //        string timeStart = "12:00";
+        //        var timeCvt = DateTime.ParseExact(timeStart, "H:mm", null, System.Globalization.DateTimeStyles.None);
         //        timeCvt1 = timeCvt1 + timeCvt1;
         //    }
         //}
 
-        private void updateDatabase(List<Category> model, IEnumerable<Vehicle> unit)
+        private void updateDatabase(List<Category> model)
         {
             int n = model.Count();
             for (int i = 0; i < n; i++)
@@ -125,12 +143,12 @@ namespace FeeCollectorApplication.Controllers
                 string timeStart = model[i].date + ' ' + model[i].time;
                 DateTime time_start = DateTime.ParseExact(timeStart, "MM/dd/yyyy hh:mm tt", CultureInfo.InvariantCulture);
                 DateTime time_end = time_start.AddHours(2);
-                
+
                 _unitOfWork.Vehicle.Add(new Vehicle
                 {
                     image_url = model[i].image,
                     license_plate_number = model[i].idCar,
-                    car_type = model[i].type,
+                    vehicle_type = model[i].type,
                     time_start = time_start,
                     time_end = time_end,
                     location = model[i].location
