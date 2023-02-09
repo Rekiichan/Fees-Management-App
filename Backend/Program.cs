@@ -1,5 +1,8 @@
+using FeeCollectorApplication.Repository.IRepository;
+using FeeCollectorApplication.Repository;
 using FeeCollectorApplication.Service;
 using FeeCollectorApplication.Settings;
+using Microsoft.EntityFrameworkCore;
 
 namespace FeeCollectorApplication
 {
@@ -10,14 +13,19 @@ namespace FeeCollectorApplication
             var builder = WebApplication.CreateBuilder(args);
 
             // Add services to the container.
+            var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 
-            builder.Services.AddControllers()
-    .AddJsonOptions(
+            builder.Services.AddControllers().AddJsonOptions(
         options => options.JsonSerializerOptions.PropertyNamingPolicy = null);
+            builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(
+                builder.Configuration.GetConnectionString("DefaultConnection"))
+            );
             builder.Services.Configure<FeeCollectorDatabaseSettings>(
                 builder.Configuration.GetSection("MongoDB"));
+
             builder.Services.AddSingleton<FeeCollectorService>();
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+            builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
             //services cors
