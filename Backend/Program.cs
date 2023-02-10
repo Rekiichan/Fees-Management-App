@@ -1,7 +1,6 @@
 using FeeCollectorApplication.Repository.IRepository;
 using FeeCollectorApplication.Repository;
 using FeeCollectorApplication.Service;
-using FeeCollectorApplication.Settings;
 using Microsoft.EntityFrameworkCore;
 
 namespace FeeCollectorApplication
@@ -20,12 +19,7 @@ namespace FeeCollectorApplication
             builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(
                 builder.Configuration.GetConnectionString("DefaultConnection"))
             );
-            builder.Services.Configure<FeeCollectorDatabaseSettings>(
-                builder.Configuration.GetSection("MongoDB"));
-
-            builder.Services.AddSingleton<FeeCollectorService>();
             builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
-
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
             //services cors

@@ -6,7 +6,6 @@ namespace FeeCollectorApplication.ModelsSqlServer
     public class BillHistoryUpsert
     {
         [Key]
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Bill_id { get; set; }
         [Required]
         [StringLength(20)]

@@ -6,7 +6,6 @@ namespace FeeCollectorApplication.ModelsSqlServer
     public class Payment
     {
         [Key]
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int pay_id { get; set; }
         [Required]
         [StringLength(20)]

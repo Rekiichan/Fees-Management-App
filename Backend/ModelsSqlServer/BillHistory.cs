@@ -6,11 +6,11 @@ namespace FeeCollectorApplication.ModelsSqlServer
     public class BillHistory
     {
         [Key]
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Bill_id { get; set; }
         [Required]
         [StringLength(20)]
         public string license_plate_number { get; set; }
+        public DateTime? Bill_datetime { get; set;}
         [Required]
         public float price { get; set; }
     }

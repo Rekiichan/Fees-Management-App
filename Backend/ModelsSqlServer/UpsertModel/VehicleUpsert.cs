@@ -8,8 +8,6 @@ namespace FeeCollectorApplication.ModelsSqlServer
         [Required]
         [StringLength(20)]
         public string license_plate_number { get; set; }
-        [StringLength(200)]
-        public string image_url{ get; set; }
         [Required]
         [StringLength(30)]
         public string vehicle_type { get; set; }

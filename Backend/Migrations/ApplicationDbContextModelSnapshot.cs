@@ -51,6 +51,9 @@ namespace FeeCollectorApplication.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Bill_id"));
 
+                    b.Property<DateTime?>("Bill_datetime")
+                        .HasColumnType("datetime2");
+
                     b.Property<string>("license_plate_number")
                         .IsRequired()
                         .HasMaxLength(20)
@@ -120,8 +123,7 @@ namespace FeeCollectorApplication.Migrations
 
                     b.Property<string>("vehicle_type")
                         .IsRequired()
-                        .HasMaxLength(30)
-                        .HasColumnType("nvarchar(30)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Vehicle_id");
 

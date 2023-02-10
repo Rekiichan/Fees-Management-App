@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FeeCollectorApplication.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20230210043518_addBillHistoryToDb")]
-    partial class addBillHistoryToDb
+    [Migration("20230210070627_AddVehicletables")]
+    partial class AddVehicletables
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -53,6 +53,9 @@ namespace FeeCollectorApplication.Migrations
                         .HasColumnType("int");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Bill_id"));
+
+                    b.Property<DateTime?>("Bill_datetime")
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("license_plate_number")
                         .IsRequired()
@@ -123,8 +126,7 @@ namespace FeeCollectorApplication.Migrations
 
                     b.Property<string>("vehicle_type")
                         .IsRequired()
-                        .HasMaxLength(30)
-                        .HasColumnType("nvarchar(30)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Vehicle_id");
 

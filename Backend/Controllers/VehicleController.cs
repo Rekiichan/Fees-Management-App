@@ -5,6 +5,7 @@ using FeeCollectorApplication.Service;
 using FeeCollectorApplication.Repository.IRepository;
 using FeeCollectorApplication.ModelsSqlServer;
 using System.Globalization;
+using Microsoft.Extensions.Hosting;
 
 namespace FeeCollectorApplication.Controllers
 {
@@ -12,21 +13,16 @@ namespace FeeCollectorApplication.Controllers
     [Route("api/vehicle")]
     public class VehicleController : ControllerBase
     {
-        private readonly FeeCollectorService _feeCollectorService;
         private readonly IUnitOfWork _unitOfWork;
-        public VehicleController(FeeCollectorService feeCollectorService, IUnitOfWork unitOfWork)
+        private readonly IWebHostEnvironment _hostEnvironment;
+        public VehicleController(IUnitOfWork unitOfWork, IWebHostEnvironment hostEnvironment)
         {
-            _feeCollectorService = feeCollectorService;
             _unitOfWork = unitOfWork;
+            _hostEnvironment = hostEnvironment;
         }
         [HttpGet]
         public IActionResult GetAllData()
         {
-            var model = _feeCollectorService.GetData();
-            if (model.Count() > 0)
-            {
-                updateDatabase(model);
-            }
             var unit = _unitOfWork.Vehicle.GetAll();
             return Ok(unit);
         }
@@ -41,15 +37,15 @@ namespace FeeCollectorApplication.Controllers
             return Ok(obj);
         }
         [HttpPost]
-        public IActionResult RequestVehicle(VehicleUpsert obj)
+        public IActionResult RequestVehicle([FromForm]VehicleUpsert obj, [FromForm]IFormFile file)
         {
-            if (obj == null)
+            if (obj == null || file == null)
             {
                 return BadRequest();
             }
             DateTime timeStart = DateTime.Now;
             DateTime timeEnd = timeStart.AddHours(2);
-            var model = _unitOfWork.Vehicle.GetAll().ToArray();
+            var model = _unitOfWork.Vehicle.GetAll(u => u.license_plate_number == obj.license_plate_number).ToArray();
             for (int i = model.Count() - 1; i >= 0; i--)
             {
                 if (model[i].license_plate_number == obj.license_plate_number)
@@ -64,12 +60,14 @@ namespace FeeCollectorApplication.Controllers
                     break;
                 }
             }
+
+            string imgUrl = AddImageOfVehicle(file, obj.license_plate_number, timeStart);
             var temp = new Vehicle()
             {
                 license_plate_number = obj.license_plate_number,
                 time_start = timeStart,
                 time_end = timeEnd,
-                image_url = obj.image_url,
+                image_url = imgUrl,
                 vehicle_type = obj.vehicle_type,
                 location = obj.location
             };
@@ -90,9 +88,14 @@ namespace FeeCollectorApplication.Controllers
             {
                 BillTriggerInsert(obj.license_plate_number, priceOfVehicleType);
             }
+            BillHistoryTrigger(new BillHistory()
+            {
+                price = priceOfVehicleType,
+                license_plate_number = obj.license_plate_number,
+                Bill_datetime = DateTime.Now
+            });
             // Save scoped
             _unitOfWork.Save();
-
             return Ok("Created");
         }
 
@@ -123,59 +126,34 @@ namespace FeeCollectorApplication.Controllers
             _unitOfWork.Bill.Add(billModel);
         }
 
+        private void BillHistoryTrigger(BillHistory obj)
+        {
+            _unitOfWork.BillHistory.Add(obj);
+        }
         #endregion
 
         #region function_process
 
-        //public string timeProccess(string time1, string time2)
-        //{
-        //    bool checkPM1 = false;
-        //    bool checkPM2 = false;
-
-        //    if (time1.Contains("PM"))
-        //    {
-        //        checkPM1 = true;
-        //    }
-        //    if (time2.Contains("PM"))
-        //    {
-        //        checkPM2 = true;
-        //    }
-
-        //    time1.Remove(5);
-        //    time2.Remove(5);
-
-        //    var timeCvt1 = DateTime.ParseExact(time1, "H:mm", null, System.Globalization.DateTimeStyles.None);
-        //    var timeCvt2 = DateTime.ParseExact(time2, "H:mm", null, System.Globalization.DateTimeStyles.None);
-
-        //    if (checkPM1)
-        //    {
-        //        string timeStart = "12:00";
-        //        var timeCvt = DateTime.ParseExact(timeStart, "H:mm", null, System.Globalization.DateTimeStyles.None);
-        //        timeCvt1 = timeCvt1 + timeCvt1;
-        //    }
-        //}
-
-        private void updateDatabase(List<Category> model)
+        private string AddImageOfVehicle([FromBody] IFormFile file, string lpn, DateTime time_start)
         {
-            int n = model.Count();
-            for (int i = 0; i < n; i++)
+            string? imagePath = "";
+            string wwwRootPath = _hostEnvironment.WebRootPath;
+            if (file != null)
             {
-                string timeStart = model[i].date + ' ' + model[i].time;
-                DateTime time_start = DateTime.ParseExact(timeStart, "MM/dd/yyyy hh:mm tt", CultureInfo.InvariantCulture);
-                DateTime time_end = time_start.AddHours(2);
+                string fileName = lpn + '-' + time_start.ToString("yyyy-MM-dd-HH-mm");
+                var uploads = Path.Combine(wwwRootPath, @"images\");
+                var extension = Path.GetExtension(file.FileName);
 
-                _unitOfWork.Vehicle.Add(new Vehicle
+                using (var fileStreams = new FileStream(Path.Combine(uploads, fileName + extension), FileMode.Create))
                 {
-                    image_url = model[i].image,
-                    license_plate_number = model[i].idCar,
-                    vehicle_type = model[i].type,
-                    time_start = time_start,
-                    time_end = time_end,
-                    location = model[i].location
-                });
+                    file.CopyTo(fileStreams);
+                }
+                string ImageUrl = @"\images\" + fileName + extension;
+                imagePath = ImageUrl;
             }
-            _unitOfWork.Save();
+            return imagePath;
         }
+
         #endregion
     }
 }
