@@ -10,9 +10,10 @@ namespace FeeCollectorApplication.Repository
         {
             _db = db;
             Vehicle = new VehicleRepository(_db);
-            Payment= new PaymentRepository(_db);
-            Bill= new BillRepository(_db);
+            Payment = new PaymentRepository(_db);
+            Bill = new BillRepository(_db);
             VehicleType = new VehicleTypeRepository(_db);
+            BillHistory = new BillHistoryRepository(_db);
         }
         public IVehicleRepository Vehicle { get; private set; }
 
@@ -21,6 +22,8 @@ namespace FeeCollectorApplication.Repository
         public IBillRepository Bill { get; private set; }
 
         public IVehicleTypeRepository VehicleType { get; private set; }
+
+        public IBillHistoryRepository BillHistory { get; private set; }
         public void Save()
         {
             _db.SaveChanges();

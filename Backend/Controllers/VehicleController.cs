@@ -9,7 +9,7 @@ using System.Globalization;
 namespace FeeCollectorApplication.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("api/vehicle")]
     public class VehicleController : ControllerBase
     {
         private readonly FeeCollectorService _feeCollectorService;
@@ -77,8 +77,21 @@ namespace FeeCollectorApplication.Controllers
             _unitOfWork.Vehicle.Add(temp);
             float priceOfVehicleType = _unitOfWork.VehicleType.GetFirstOrDefault(u => u.vehicle_type == obj.vehicle_type).price;
 
-            // Trigger when vehicle added
-            BillTrigger(priceOfVehicleType, obj.license_plate_number);
+            // check that obj have already had ?
+            Bill billCheck = _unitOfWork.Bill.GetFirstOrDefault(u => u.license_plate_number == obj.license_plate_number);
+
+            // Trigger when vehicle need to update
+            if (billCheck != null)
+            {
+                billCheck.price += priceOfVehicleType;
+                BillTriggerUpdate(billCheck);
+            }
+            else
+            {
+                BillTriggerInsert(obj.license_plate_number, priceOfVehicleType);
+            }
+            // Save scoped
+            _unitOfWork.Save();
 
             return Ok("Created");
         }
@@ -96,27 +109,18 @@ namespace FeeCollectorApplication.Controllers
         }
 
         #region function_trigger
-        public void BillTrigger(float priceOfVehicleType, string license_plate_number)
+        private void BillTriggerUpdate(Bill obj)
         {
-            // Check bill object if it has already had that license plate number
-            Bill billCheck = _unitOfWork.Bill.GetFirstOrDefault(u => u.license_plate_number == license_plate_number);
-            if (billCheck != null)
+            _unitOfWork.Bill.Update(obj);
+        }
+        private void BillTriggerInsert(string lpn, float price)
+        {
+            var billModel = new Bill()
             {
-                // already had => increase fee
-                billCheck.price += priceOfVehicleType;
-                _unitOfWork.Bill.Update(billCheck);
-            }
-            else
-            {
-                var billModel = new Bill()
-                {
-                    license_plate_number = license_plate_number,
-                    price = priceOfVehicleType
-                };
-                _unitOfWork.Bill.Add(billModel);
-            }
-            // Save scoped
-            _unitOfWork.Save();
+                license_plate_number = lpn,
+                price = price
+            };
+            _unitOfWork.Bill.Add(billModel);
         }
 
         #endregion

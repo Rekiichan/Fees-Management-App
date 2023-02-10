@@ -8,7 +8,7 @@ using System.Globalization;
 namespace FeeCollectorApplication.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("api/Payment")]
     public class PaymentController : ControllerBase
     {
         private readonly IUnitOfWork _unitOfWork;
@@ -18,15 +18,15 @@ namespace FeeCollectorApplication.Controllers
             _unitOfWork = unitOfWork;
             _feeCollectorService = feeCollectorService;
         }
-        [HttpGet("{license_plate_number}")]
-        public IActionResult GetLpn(string license_plate_number)
+        [HttpGet("{lpn}")]
+        public IActionResult GetLpn(string lpn)
         {
             var dataFromMongoDb = _feeCollectorService.GetData();
             if (dataFromMongoDb.Count > 0)
             {
                 updateDatabase(dataFromMongoDb);
             }
-            var model = _unitOfWork.Bill.GetFirstOrDefault(u => u.license_plate_number == license_plate_number);
+            var model = _unitOfWork.Bill.GetFirstOrDefault(u => u.license_plate_number == lpn);
             if (model == null)
             {
                 return NotFound();
@@ -58,7 +58,19 @@ namespace FeeCollectorApplication.Controllers
                 {
                     _unitOfWork.Payment.Add(model);
                     billModel.price -= payment.paid_price;
-                    _unitOfWork.Bill.Update(billModel);
+                    if (billModel.price == 0)
+                    {
+                        _unitOfWork.Bill.Remove(billModel);
+                        _unitOfWork.Save();
+                    }
+                    else if (billModel.price > 0)
+                    {
+                        _unitOfWork.Bill.Update(billModel);
+                    }
+                    else
+                    {
+                        return Ok("The paid fee is greater than the required fee");
+                    }
                 }
                 else
                 {
@@ -70,7 +82,7 @@ namespace FeeCollectorApplication.Controllers
                 return NotFound("cannot find that license plate in bill");
             }
             _unitOfWork.Save();
-            return Ok("Paid");
+            return Ok("Paid " + payment.paid_price.ToString());
         }
 
         #region process_function

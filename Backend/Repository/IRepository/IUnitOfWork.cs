@@ -6,6 +6,7 @@
         IPaymentRepository Payment { get; }
         IBillRepository Bill { get; }
         IVehicleTypeRepository VehicleType { get; }
+        IBillHistoryRepository BillHistory { get; }
         void Save();
 
     }
