@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace FeeCollectorApplication.Migrations
 {
     /// <inheritdoc />
-    public partial class AddVehicletables : Migration
+    public partial class seedDatabase : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)

@@ -33,7 +33,7 @@ namespace FeeCollectorApplication.Controllers
             };
             _unitOfWork.VehicleType.Add(temp);
             _unitOfWork.Save();
-            return NoContent();
+            return Ok("Created");
         }
         [HttpPut("{id:int}")]
         public IActionResult EditVehicleType(int id, VehicleTypeUpsert obj)
@@ -52,7 +52,7 @@ namespace FeeCollectorApplication.Controllers
 
             _unitOfWork.VehicleType.Update(model);
             _unitOfWork.Save();
-            return NoContent();
+            return Ok("Updated");
         }
     }
 }

@@ -52,7 +52,7 @@ namespace FeeCollectorApplication.Controllers
                 {
                     if (model[i].time_end.CompareTo(timeStart) >= 0)
                     {
-                        return NoContent();
+                        return Ok("Cannot add more at this time");
                     }
                 }
                 if (model[i].time_end.CompareTo(timeStart) <= 0)

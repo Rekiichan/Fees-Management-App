@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FeeCollectorApplication.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20230210070627_AddVehicletables")]
-    partial class AddVehicletables
+    [Migration("20230210114136_seedDatabase")]
+    partial class seedDatabase
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
