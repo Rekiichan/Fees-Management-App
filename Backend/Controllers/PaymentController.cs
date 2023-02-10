@@ -51,16 +51,26 @@ namespace FeeCollectorApplication.Controllers
                 paid_price = payment.paid_price,
                 paid_time = DateTime.Now
             };
-            _unitOfWork.Payment.Add(model);
-            try
+            var billModel = _unitOfWork.Bill.GetFirstOrDefault(u => u.license_plate_number == payment.license_plate_number);
+            if (billModel != null)
             {
-                _unitOfWork.Save();
+                if (billModel.price > 0)
+                {
+                    _unitOfWork.Payment.Add(model);
+                    billModel.price -= payment.paid_price;
+                    _unitOfWork.Bill.Update(billModel);
+                }
+                else
+                {
+                    return NotFound("This license plate paid");
+                }
             }
-            catch (Exception ex)
+            else
             {
-                Console.WriteLine(ex);
+                return NotFound("cannot find that license plate in bill");
             }
-            return NoContent();
+            _unitOfWork.Save();
+            return Ok("Paid");
         }
 
         #region process_function

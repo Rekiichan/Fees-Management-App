@@ -73,24 +73,14 @@ namespace FeeCollectorApplication.Controllers
                 vehicle_type = obj.vehicle_type,
                 location = obj.location
             };
-            _unitOfWork.Vehicle.Add(temp);
 
+            _unitOfWork.Vehicle.Add(temp);
             float priceOfVehicleType = _unitOfWork.VehicleType.GetFirstOrDefault(u => u.vehicle_type == obj.vehicle_type).price;
-            Bill billCheck = _unitOfWork.Bill.GetFirstOrDefault(u => u.license_plate_number == obj.license_plate_number);
-            if (billCheck != null)
-            {
-                billCheck.price += priceOfVehicleType;
-                _unitOfWork.Bill.Update(billCheck);
-                return NoContent();
-            }
-            var billModel = new Bill()
-            {
-                license_plate_number = obj.license_plate_number,
-                price = priceOfVehicleType
-            };
-            _unitOfWork.Bill.Add(billModel);
-            _unitOfWork.Save();
-            return NoContent();
+
+            // Trigger when vehicle added
+            BillTrigger(priceOfVehicleType, obj.license_plate_number);
+
+            return Ok("Created");
         }
 
         [HttpDelete("{id}")]
@@ -102,8 +92,34 @@ namespace FeeCollectorApplication.Controllers
                 return NotFound();
             }
             _unitOfWork.Vehicle.Remove(obj);
-            return Ok("Delete success!");
+            return Ok("Deleted");
         }
+
+        #region function_trigger
+        public void BillTrigger(float priceOfVehicleType, string license_plate_number)
+        {
+            // Check bill object if it has already had that license plate number
+            Bill billCheck = _unitOfWork.Bill.GetFirstOrDefault(u => u.license_plate_number == license_plate_number);
+            if (billCheck != null)
+            {
+                // already had => increase fee
+                billCheck.price += priceOfVehicleType;
+                _unitOfWork.Bill.Update(billCheck);
+            }
+            else
+            {
+                var billModel = new Bill()
+                {
+                    license_plate_number = license_plate_number,
+                    price = priceOfVehicleType
+                };
+                _unitOfWork.Bill.Add(billModel);
+            }
+            // Save scoped
+            _unitOfWork.Save();
+        }
+
+        #endregion
 
         #region function_process
 
