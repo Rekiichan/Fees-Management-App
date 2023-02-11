@@ -14,11 +14,9 @@ namespace FeeCollectorApplication.Controllers
     public class VehicleController : ControllerBase
     {
         private readonly IUnitOfWork _unitOfWork;
-        private readonly IWebHostEnvironment _hostEnvironment;
-        public VehicleController(IUnitOfWork unitOfWork, IWebHostEnvironment hostEnvironment)
+        public VehicleController(IUnitOfWork unitOfWork)
         {
             _unitOfWork = unitOfWork;
-            _hostEnvironment = hostEnvironment;
         }
         [HttpGet]
         public IActionResult GetAllData()
@@ -134,21 +132,20 @@ namespace FeeCollectorApplication.Controllers
 
         #region function_process
 
-        private string AddImageOfVehicle([FromBody] IFormFile file, string lpn, DateTime time_start)
+        private string AddImageOfVehicle(IFormFile file, string lpn, DateTime time_start)
         {
             string? imagePath = "";
-            string wwwRootPath = _hostEnvironment.WebRootPath;
             if (file != null)
             {
                 string fileName = lpn + '-' + time_start.ToString("yyyy-MM-dd-HH-mm");
-                var uploads = Path.Combine(wwwRootPath, @"images\");
+                var uploads = @"/wwwroot/images";
                 var extension = Path.GetExtension(file.FileName);
 
                 using (var fileStreams = new FileStream(Path.Combine(uploads, fileName + extension), FileMode.Create))
                 {
                     file.CopyTo(fileStreams);
                 }
-                string ImageUrl = @"\images\" + fileName + extension;
+                string ImageUrl = uploads + fileName + extension;
                 imagePath = ImageUrl;
             }
             return imagePath;
