@@ -1,6 +1,4 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using MongoDB.Driver;
-using FeeCollectorApplication.Models;
 using FeeCollectorApplication.Service;
 using FeeCollectorApplication.Repository.IRepository;
 using FeeCollectorApplication.ModelsSqlServer;

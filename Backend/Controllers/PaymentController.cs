@@ -1,5 +1,4 @@
-﻿using FeeCollectorApplication.Models;
-using FeeCollectorApplication.ModelsSqlServer;
+﻿using FeeCollectorApplication.ModelsSqlServer;
 using FeeCollectorApplication.Repository.IRepository;
 using FeeCollectorApplication.Service;
 using Microsoft.AspNetCore.Mvc;
