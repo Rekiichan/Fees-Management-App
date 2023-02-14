@@ -1,5 +1,5 @@
 ﻿using FeeCollectorApplication.Repository.IRepository;
-using FeeCollectorApplication.Service;
+using FeeCollectorApplication.DataAccess;
 using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
 
@@ -8,7 +8,7 @@ namespace FeeCollectorApplication.Repository
     public class Repository<T> : IRepository<T> where T : class
     {
         private readonly ApplicationDbContext _db;
-        public Repository(ApplicationDbContext db)
+        public Repository(DataAccess.ApplicationDbContext db)
         {
             _db = db;
             DbSet = _db.Set<T>();
@@ -19,19 +19,12 @@ namespace FeeCollectorApplication.Repository
             DbSet.Add(entity);
         }
 
-        public IEnumerable<T> GetAll(Expression<Func<T, bool>>? filter = null, string? includeProperties = null)
+        public IEnumerable<T> GetAll(Expression<Func<T, bool>>? filter = null)
         {
             IQueryable<T> query = DbSet;
             if (filter != null)
             {
                 query = query.Where(filter);
-            }
-            if (includeProperties != null)
-            {
-                foreach (var includeProp in includeProperties.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
-                {
-                    query = query.Include(includeProp);
-                }
             }
             return query.ToList();
         }

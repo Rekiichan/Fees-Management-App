@@ -1,4 +1,4 @@
-﻿using FeeCollectorApplication.ModelsSqlServer;
+﻿using FeeCollectorApplication.Models;
 
 namespace FeeCollectorApplication.Repository.IRepository
 {

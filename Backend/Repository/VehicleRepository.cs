@@ -1,6 +1,6 @@
-﻿using FeeCollectorApplication.ModelsSqlServer;
+﻿using FeeCollectorApplication.Models;
 using FeeCollectorApplication.Repository.IRepository;
-using FeeCollectorApplication.Service;
+using FeeCollectorApplication.DataAccess;
 
 namespace FeeCollectorApplication.Repository
 {
