@@ -35,14 +35,14 @@ namespace FeeCollectorApplication.Controllers
         //    return Ok(obj);
         //}
         [AllowAnonymous]
-        [HttpGet("lp:string")]
+        [HttpGet("lp")]
         public IActionResult GetDataByLicensePlate(string lp)
         {
             var obj = _unitOfWork.Vehicle.GetFirstOrDefault(u => u.LicensePlate == lp);
             return Ok(obj);
         }
         [Authorize(Roles = SD.Role_Admin)]
-        [HttpPut("{id:int}")]
+        [HttpPut("{id}")]
         public IActionResult UpdateVehicle(int id, VehicleUpsert obj)
         {
             var model = _unitOfWork.Vehicle.GetFirstOrDefault(u => u.Id == id);

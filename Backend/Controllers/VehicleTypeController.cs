@@ -18,7 +18,7 @@ namespace FeeCollectorApplication.Controllers
             _unitOfWork = unitOfWork;
         }
         [HttpGet]
-        [Authorize(Roles = SD.Role_Admin)]
+        [AllowAnonymous]
         public IActionResult GetAllVehicleType()
         {
             var model = _unitOfWork.VehicleType.GetAll();

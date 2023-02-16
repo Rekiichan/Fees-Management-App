@@ -22,8 +22,9 @@ namespace FeeCollectorApplication.Controllers
             _unit = unit;
             _configuration= configuration;
         }
+        //[Authorize("Admin")]
+        [AllowAnonymous]
         [HttpGet]
-        [Authorize("Admin")]
         public IActionResult GetAllBills()
         {
             var model = _unit.Bill.GetAll();
@@ -42,7 +43,7 @@ namespace FeeCollectorApplication.Controllers
         //}
 
         [AllowAnonymous]
-        [HttpGet("{lp:string}")]
+        [HttpGet("{lp}")]
         public IActionResult GetBillByLp(string lp)
         {
             var model = _unit.Bill.GetAll(u => u.LicensePlate == lp);
@@ -91,11 +92,10 @@ namespace FeeCollectorApplication.Controllers
             };
             _unit.Bill.Add(newBillModel);
             _unit.Save();
-            string domainName = _configuration.GetValue<string>("DomainName:Domain");
-
             // TODO: UPDATE LINK FROM FRONT END
             //return Ok($"{domainName}/api/vehicle/" + newBillModel.LicensePlate);
-            return Ok("link to payment website");
+            string response = _configuration.GetValue<string>("DomainName:Domain") + "/api/information/" + newBillModel.LicensePlate;
+            return Ok(response);
         }
         [Authorize(Roles = SD.Role_Admin)]
         [HttpPut("{id:int}")]
