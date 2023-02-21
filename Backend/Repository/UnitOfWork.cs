@@ -22,9 +22,9 @@ namespace FeeCollectorApplication.Repository
 
         public IApplicationUserRepository ApplicationUser { get; private set; }
 
-        public void Save()
+        public async Task Save()
         {
-            _db.SaveChanges();
+            await _db.SaveChangesAsync();
         }
     }
 }

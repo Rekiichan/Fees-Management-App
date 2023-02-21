@@ -1,4 +1,5 @@
 ﻿using FeeCollectorApplication.Models;
+using FeeCollectorApplication.Models.Dto;
 using FeeCollectorApplication.Repository.IRepository;
 using FeeCollectorApplication.Utility;
 using Microsoft.AspNetCore.Authorization;
@@ -9,7 +10,7 @@ namespace FeeCollectorApplication.Controllers
 {
     [ApiController]
     [Route("api/vehicletype")]
-    [Authorize]
+    [Authorize(Roles = SD.Role_Admin)]
     public class VehicleTypeController : ControllerBase
     {
         private readonly IUnitOfWork _unitOfWork;
@@ -19,13 +20,15 @@ namespace FeeCollectorApplication.Controllers
         }
         [HttpGet]
         [AllowAnonymous]
-        public IActionResult GetAllVehicleType()
+        public async Task<IActionResult> GetAllVehicleType()
         {
-            var model = _unitOfWork.VehicleType.GetAll();
+            var model = await _unitOfWork.VehicleType.GetAllAsync();
             return Ok(model);
         }
-        [Authorize(Roles = SD.Role_Admin)]
+        //[Authorize(Roles = SD.Role_Admin)]
+        //[AllowAnonymous]
         [HttpPost]
+        [Authorize(Roles = SD.Role_Admin)]
         public IActionResult AddVehicleType(VehicleTypeUpsert obj)
         {
             if (obj == null)
@@ -43,13 +46,13 @@ namespace FeeCollectorApplication.Controllers
         }
         [Authorize(Roles = SD.Role_Admin)]
         [HttpPut("{id:int}")]
-        public IActionResult EditVehicleType(int id, VehicleTypeUpsert obj)
+        public async Task<IActionResult> EditVehicleType(int id, VehicleTypeUpsert obj)
         {
             if (obj == null)
             {
                 return BadRequest();
             }
-            var model = _unitOfWork.VehicleType.GetFirstOrDefault(u => u.Id == id);
+            var model = await _unitOfWork.VehicleType.GetFirstOrDefaultAsync(u => u.Id == id);
             if (model == null)
             {
                 return BadRequest();
@@ -57,7 +60,7 @@ namespace FeeCollectorApplication.Controllers
             model.Price = obj.Price;
             model.VehicleTypeName = obj.VehicleTypeName;
             _unitOfWork.VehicleType.Update(model);
-            _unitOfWork.Save();
+            await _unitOfWork.Save();
             return Ok("Updated");
         }
     }

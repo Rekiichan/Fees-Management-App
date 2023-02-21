@@ -4,9 +4,9 @@ namespace FeeCollectorApplication.Repository.IRepository
 {
     public interface IRepository<T> where T : class
     {
-        T GetFirstOrDefault(Expression<Func<T, bool>> filter, string? includeProperties = null, bool tracked = true);
-        IEnumerable<T> GetAll(Expression<Func<T, bool>> filter = null);
-        void Add(T entity);
+        Task<T> GetFirstOrDefaultAsync(Expression<Func<T, bool>> filter, bool tracked = true);
+        Task<IEnumerable<T>> GetAllAsync(Expression<Func<T, bool>> filter = null);
+        Task Add(T entity);
         void Remove(T entity);
         void RemoveRange(IEnumerable<T> entity);
     }

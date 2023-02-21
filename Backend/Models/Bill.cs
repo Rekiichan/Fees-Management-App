@@ -10,8 +10,8 @@ namespace FeeCollectorApplication.Models
         [Key]
         public int Id { get; set; }
         public float Fee { get; set; }
-        public DateTime TimeStart { get; set; }
-        public DateTime TimeEnd { get; set; }
+        public DateTime CreatedTime { get; set; }
+        public DateTime EndTime { get; set; }
         public string Location { get; set; }
         [Required]
         public string LicensePlate { get; set; }

@@ -8,28 +8,39 @@ namespace FeeCollectorApplication.Repository
     public class Repository<T> : IRepository<T> where T : class
     {
         private readonly ApplicationDbContext _db;
-        public Repository(DataAccess.ApplicationDbContext db)
+        public Repository(ApplicationDbContext db)
         {
             _db = db;
             DbSet = _db.Set<T>();
         }
         internal DbSet<T> DbSet;
-        public void Add(T entity)
+        public async Task Add(T entity)
         {
-            DbSet.Add(entity);
+            await DbSet.AddAsync(entity);
         }
-
-        public IEnumerable<T> GetAll(Expression<Func<T, bool>>? filter = null)
+            
+        public async Task<IEnumerable<T>> GetAllAsync(Expression<Func<T, bool>>? filter = null)
         {
             IQueryable<T> query = DbSet;
             if (filter != null)
             {
                 query = query.Where(filter);
             }
-            return query.ToList();
+
+            return await query.ToListAsync();
         }
 
-        public T GetFirstOrDefault(Expression<Func<T, bool>> filter, string? includeProperties = null, bool tracked = true)
+        //public Task<IEnumerable<T>> GetAllAsync(Expression<Func<T, bool>> ? filter = null)
+        //{
+        //    IQueryable<T> query = DbSet;
+        //    if (filter != null)
+        //    {
+        //        await query = query.Where(filter);
+        //    }
+        //    return query.ToList;
+        //}
+
+        public async Task<T> GetFirstOrDefaultAsync(Expression<Func<T, bool>> filter, bool tracked = true)
         {
 
             IQueryable<T> query;
@@ -41,15 +52,7 @@ namespace FeeCollectorApplication.Repository
             {
                 query = DbSet.AsNoTracking();
             }
-            query = query.Where(filter);
-            if (includeProperties != null)
-            {
-                foreach (var includeProp in includeProperties.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
-                {
-                    query = query.Include(includeProp);
-                }
-            }
-            return query.FirstOrDefault();
+            return await query.Where(filter).FirstOrDefaultAsync();
         }
 
         public void Remove(T entity)

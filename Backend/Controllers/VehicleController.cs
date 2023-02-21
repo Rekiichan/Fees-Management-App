@@ -3,6 +3,7 @@ using FeeCollectorApplication.Repository.IRepository;
 using FeeCollectorApplication.Models;
 using Microsoft.AspNetCore.Authorization;
 using FeeCollectorApplication.Utility;
+using System.Net;
 
 namespace FeeCollectorApplication.Controllers
 {
@@ -12,15 +13,18 @@ namespace FeeCollectorApplication.Controllers
     public class VehicleController : ControllerBase
     {
         private readonly IUnitOfWork _unitOfWork;
+        private readonly ApiResponse response;
         public VehicleController(IUnitOfWork unitOfWork)
         {
             _unitOfWork = unitOfWork;
         }
-        [AllowAnonymous]
+        [Authorize(Roles =SD.Role_Admin)]
         [HttpGet]
         public IActionResult GetAllData()
         {
-            var unit = _unitOfWork.Vehicle.GetAll();
+            var unit = _unitOfWork.Vehicle.GetAllAsync();
+            response.Result = unit;
+            response.StatusCode = HttpStatusCode.OK;
             return Ok(unit);
         }
         //[AllowAnonymous]
@@ -36,16 +40,16 @@ namespace FeeCollectorApplication.Controllers
         //}
         [AllowAnonymous]
         [HttpGet("lp")]
-        public IActionResult GetDataByLicensePlate(string lp)
+        public async Task<IActionResult> GetDataByLicensePlate(string lp)
         {
-            var obj = _unitOfWork.Vehicle.GetFirstOrDefault(u => u.LicensePlate == lp);
+            var obj = await _unitOfWork.Vehicle.GetFirstOrDefaultAsync(u => u.LicensePlate == lp);
             return Ok(obj);
         }
         [Authorize(Roles = SD.Role_Admin)]
         [HttpPut("{id}")]
-        public IActionResult UpdateVehicle(int id, VehicleUpsert obj)
+        public async Task<IActionResult> UpdateVehicle(int id, VehicleUpsert obj)
         {
-            var model = _unitOfWork.Vehicle.GetFirstOrDefault(u => u.Id == id);
+            var model = await _unitOfWork.Vehicle.GetFirstOrDefaultAsync(u => u.Id == id);
             if (model == null)
             {
                 return NotFound();
@@ -58,9 +62,9 @@ namespace FeeCollectorApplication.Controllers
         }
         [Authorize(Roles = SD.Role_Admin)]
         [HttpDelete("{id}")]
-        public IActionResult DeleteById(int id)
+        public async Task<IActionResult> DeleteById(int id)
         {
-            var obj = _unitOfWork.Vehicle.GetFirstOrDefault(u => u.Id == id);
+            var obj = await _unitOfWork.Vehicle.GetFirstOrDefaultAsync(u => u.Id == id);
             if (obj == null)
             {
                 return NotFound();

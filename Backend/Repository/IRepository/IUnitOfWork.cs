@@ -6,7 +6,6 @@
         IBillRepository Bill { get; }
         IVehicleTypeRepository VehicleType { get; }
         IApplicationUserRepository ApplicationUser { get; }
-        void Save();
-
+        Task Save();
     }
 }
