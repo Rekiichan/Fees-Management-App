@@ -55,14 +55,18 @@ namespace FeeCollectorApplication.Controllers
                         await _roleManager.CreateAsync(new IdentityRole(SD.Role_Admin));
                         await _roleManager.CreateAsync(new IdentityRole(SD.Role_Customer));
                     }
-                    //if (model.Role.ToLower() == SD.Role_Admin)
-                    //{
-                    //    await _userManager.AddToRoleAsync(newUser, SD.Role_Admin);
-                    //}
-                    //else
-                    //{
-                    await _userManager.AddToRoleAsync(newUser, SD.Role_Customer);
-                    //}
+                    if (model.Role.ToLower() == SD.Role_Admin)
+                    {
+                        await _userManager.AddToRoleAsync(newUser, SD.Role_Admin);
+                    }
+                    else if (model.Role.ToLower() == SD.Role_Employee)
+                    {
+                        await _userManager.AddToRoleAsync(newUser, SD.Role_Employee);
+                    }
+                    else
+                    {
+                        await _userManager.AddToRoleAsync(newUser, SD.Role_Employee);
+                    }
                     return Ok("Registered");
                 }
             }
