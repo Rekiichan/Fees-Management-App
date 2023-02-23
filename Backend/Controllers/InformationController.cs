@@ -24,5 +24,15 @@ namespace FeeCollectorApplication.Controllers
             }
             return Ok(VehicleViewModel);
         }
+        [HttpGet("{lp}")]
+        public async Task<IActionResult> GetDataByLp(string lp)
+        {
+            var Vehicle = await _unit.Vehicle.GetFirstOrDefaultAsync(u => u.LicensePlate== lp);
+            if (Vehicle == null)
+            {
+                return NotFound();
+            }
+            return Ok(Vehicle);
+        }
     }
 }

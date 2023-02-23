@@ -46,7 +46,7 @@ namespace FeeCollectorApplication.Controllers
         //}
 
         [AllowAnonymous]
-        [HttpGet("{lp}")]
+        [HttpGet("search/{lp}")]
         public async Task<IActionResult> GetAllBillsByLp(string lp)
         {
             var model = await _unit.Bill.GetAllAsync(u => u.LicensePlate == lp);
@@ -101,8 +101,6 @@ namespace FeeCollectorApplication.Controllers
 
             await _unit.Bill.Add(newBillModel);
             await _unit.Save();
-            // TODO: UPDATE LINK FROM FRONT END
-            //return Ok($"{domainName}/api/vehicle/" + newBillModel.LicensePlate);
             string response = _configuration.GetValue<string>("DomainName:Domain") + "/api/information/" + newBillModel.LicensePlate;
             return Ok(response);
         }
