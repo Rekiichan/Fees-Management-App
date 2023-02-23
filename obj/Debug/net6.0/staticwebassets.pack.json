@@ -1,0 +1,25 @@
+{
+  "Files": [
+    {
+      "Id": "D:\\workspace\\FeeCollectorApplication\\Backend\\wwwroot\\images\\43X67873-2023-02-10-17-03.png",
+      "PackagePath": "staticwebassets\\images\\43X67873-2023-02-10-17-03.png"
+    },
+    {
+      "Id": "obj\\Debug\\net6.0\\staticwebassets\\msbuild.FeeCollectorApplication.Microsoft.AspNetCore.StaticWebAssets.props",
+      "PackagePath": "build\\Microsoft.AspNetCore.StaticWebAssets.props"
+    },
+    {
+      "Id": "obj\\Debug\\net6.0\\staticwebassets\\msbuild.build.FeeCollectorApplication.props",
+      "PackagePath": "build\\FeeCollectorApplication.props"
+    },
+    {
+      "Id": "obj\\Debug\\net6.0\\staticwebassets\\msbuild.buildMultiTargeting.FeeCollectorApplication.props",
+      "PackagePath": "buildMultiTargeting\\FeeCollectorApplication.props"
+    },
+    {
+      "Id": "obj\\Debug\\net6.0\\staticwebassets\\msbuild.buildTransitive.FeeCollectorApplication.props",
+      "PackagePath": "buildTransitive\\FeeCollectorApplication.props"
+    }
+  ],
+  "ElementsToRemove": []
+}

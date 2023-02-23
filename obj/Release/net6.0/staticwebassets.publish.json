@@ -1,0 +1,19 @@
+{
+  "Version": 1,
+  "Hash": "1CsZOw7VULEO5XSfyTWWY+FRletvLGj8nfdyk8Q9yAQ=",
+  "Source": "FeeCollectorApplication",
+  "BasePath": "_content/FeeCollectorApplication",
+  "Mode": "Default",
+  "ManifestType": "Publish",
+  "ReferencedProjectsConfiguration": [],
+  "DiscoveryPatterns": [
+    {
+      "Name": "FeeCollectorApplication\\wwwroot",
+      "Source": "FeeCollectorApplication",
+      "ContentRoot": "D:\\workspace\\FeeCollectorApplication\\Backend\\wwwroot\\",
+      "BasePath": "_content/FeeCollectorApplication",
+      "Pattern": "**"
+    }
+  ],
+  "Assets": []
+}
