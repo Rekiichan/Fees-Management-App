@@ -59,8 +59,8 @@ namespace FeeCollectorApplication.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     LicensePlate = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: true),
                     Price = table.Column<float>(type: "real", nullable: false),
-                    CreatedDate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    LastModified = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    CreatedDate = table.Column<DateTime>(type: "datetime2(0)", nullable: false),
+                    LastModified = table.Column<DateTime>(type: "datetime2(0)", nullable: false),
                     ImagePath = table.Column<string>(type: "nvarchar(max)", nullable: true)
                 },
                 constraints: table =>
@@ -76,8 +76,8 @@ namespace FeeCollectorApplication.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     VehicleTypeName = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Price = table.Column<float>(type: "real", nullable: false),
-                    CreatedDate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    LastModified = table.Column<DateTime>(type: "datetime2", nullable: false)
+                    CreatedDate = table.Column<DateTime>(type: "datetime2(0)", nullable: false),
+                    LastModified = table.Column<DateTime>(type: "datetime2(0)", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -197,8 +197,8 @@ namespace FeeCollectorApplication.Migrations
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Fee = table.Column<float>(type: "real", nullable: false),
-                    CreatedTime = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    EndTime = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    CreatedTime = table.Column<DateTime>(type: "datetime2(0)", nullable: false),
+                    EndTime = table.Column<DateTime>(type: "datetime2(0)", nullable: false),
                     Location = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     LicensePlate = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     ImageUrl = table.Column<string>(type: "nvarchar(60)", maxLength: 60, nullable: true),
