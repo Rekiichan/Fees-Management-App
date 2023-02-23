@@ -57,7 +57,7 @@ namespace FeeCollectorApplication.Controllers
             model.Price = obj.Price;
             model.LicensePlate= obj.LicensePlate;
             _unitOfWork.Vehicle.Update(model);
-            _unitOfWork.Save();
+            await _unitOfWork.Save();
             return Ok("Updated");
         }
         [Authorize(Roles = SD.Role_Admin)]
@@ -70,7 +70,7 @@ namespace FeeCollectorApplication.Controllers
                 return NotFound();
             }
             _unitOfWork.Vehicle.Remove(obj);
-            _unitOfWork.Save();
+            await _unitOfWork.Save();
             return Ok("Deleted");
         }
     }
