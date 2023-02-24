@@ -20,7 +20,6 @@ D:\workspace\FeeCollectorApplication\Backend\bin\Debug\net6.0\Microsoft.Extensio
 D:\workspace\FeeCollectorApplication\Backend\bin\Debug\net6.0\Microsoft.Extensions.Options.dll
 D:\workspace\FeeCollectorApplication\Backend\bin\Debug\net6.0\Microsoft.Extensions.Primitives.dll
 D:\workspace\FeeCollectorApplication\Backend\bin\Debug\net6.0\Microsoft.OpenApi.dll
-D:\workspace\FeeCollectorApplication\Backend\bin\Debug\net6.0\Newtonsoft.Json.dll
 D:\workspace\FeeCollectorApplication\Backend\bin\Debug\net6.0\Swashbuckle.AspNetCore.Swagger.dll
 D:\workspace\FeeCollectorApplication\Backend\bin\Debug\net6.0\Swashbuckle.AspNetCore.SwaggerGen.dll
 D:\workspace\FeeCollectorApplication\Backend\bin\Debug\net6.0\Swashbuckle.AspNetCore.SwaggerUI.dll
@@ -93,6 +92,3 @@ D:\workspace\FeeCollectorApplication\Backend\bin\Debug\net6.0\Microsoft.AspNetCo
 D:\workspace\FeeCollectorApplication\Backend\bin\Debug\net6.0\Microsoft.Extensions.Identity.Core.dll
 D:\workspace\FeeCollectorApplication\Backend\bin\Debug\net6.0\Microsoft.Extensions.Identity.Stores.dll
 D:\workspace\FeeCollectorApplication\Backend\bin\Debug\net6.0\Microsoft.AspNetCore.Authentication.JwtBearer.dll
-D:\workspace\FeeCollectorApplication\Backend\bin\Debug\net6.0\Microsoft.AspNetCore.JsonPatch.dll
-D:\workspace\FeeCollectorApplication\Backend\bin\Debug\net6.0\Microsoft.AspNetCore.Mvc.NewtonsoftJson.dll
-D:\workspace\FeeCollectorApplication\Backend\bin\Debug\net6.0\Newtonsoft.Json.Bson.dll

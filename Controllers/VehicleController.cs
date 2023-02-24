@@ -23,8 +23,8 @@ namespace FeeCollectorApplication.Controllers
         public IActionResult GetAllData()
         {
             var unit = _unitOfWork.Vehicle.GetAllAsync();
-            response.Result = unit;
-            response.StatusCode = HttpStatusCode.OK;
+            //response.Result = unit;
+            //response.StatusCode = HttpStatusCode.OK;
             return Ok(unit);
         }
         //[AllowAnonymous]
