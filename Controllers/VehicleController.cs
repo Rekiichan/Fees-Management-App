@@ -13,7 +13,6 @@ namespace FeeCollectorApplication.Controllers
     public class VehicleController : ControllerBase
     {
         private readonly IUnitOfWork _unitOfWork;
-        private readonly ApiResponse response;
         public VehicleController(IUnitOfWork unitOfWork)
         {
             _unitOfWork = unitOfWork;

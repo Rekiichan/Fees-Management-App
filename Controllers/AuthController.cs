@@ -54,6 +54,7 @@ namespace FeeCollectorApplication.Controllers
                     {
                         await _roleManager.CreateAsync(new IdentityRole(SD.Role_Admin));
                         await _roleManager.CreateAsync(new IdentityRole(SD.Role_Customer));
+                        await _roleManager.CreateAsync(new IdentityRole(SD.Role_Employee));
                     }
                     if (model.Role.ToLower() == SD.Role_Admin)
                     {
@@ -63,9 +64,13 @@ namespace FeeCollectorApplication.Controllers
                     {
                         await _userManager.AddToRoleAsync(newUser, SD.Role_Employee);
                     }
+                    else if (model.Role.ToLower() == SD.Role_Customer)
+                    {
+                        await _userManager.AddToRoleAsync(newUser, SD.Role_Customer);
+                    }
                     else
                     {
-                        await _userManager.AddToRoleAsync(newUser, SD.Role_Employee);
+                        return BadRequest();
                     }
                     return Ok("Registered");
                 }
@@ -98,7 +103,7 @@ namespace FeeCollectorApplication.Controllers
                     new Claim(ClaimTypes.Email, userFromDb.UserName.ToString()),
                     new Claim(ClaimTypes.Role, roles.FirstOrDefault())
                 }),
-                Expires = DateTime.Now.AddMinutes(2),
+                Expires = DateTime.Now.AddHours(2),
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
             };
             SecurityToken token = tokenHandler.CreateToken(tokenDescriptor);

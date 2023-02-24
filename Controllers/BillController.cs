@@ -23,12 +23,12 @@ namespace FeeCollectorApplication.Controllers
             _unit = unit;
             _configuration= configuration;
         }
-        [Authorize("Admin")]
-        //[AllowAnonymous]
+        [Authorize(Roles = SD.Role_Admin)]
         [HttpGet]
         public async Task<IActionResult> GetAllBills()
         {
             var model = await _unit.Bill.GetAllAsync();
+            await Console.Out.WriteLineAsync("-------------------------------- GET ALL BILLS ----------------------------");
             return Ok(model);
         }
 
@@ -57,7 +57,7 @@ namespace FeeCollectorApplication.Controllers
             return Ok(model);
         }
         [AllowAnonymous]
-        //[Authorize("Admin")]
+        //[Authorize("admin")]
         [HttpPost]
         public async Task<IActionResult> AddBill(BillUpsert obj)
         {
@@ -105,7 +105,7 @@ namespace FeeCollectorApplication.Controllers
             return Ok(response);
         }
         [Authorize(Roles = SD.Role_Admin)]
-        [HttpPut("{id:int}")]
+        [HttpPut("{id}")]
         public async Task<IActionResult> UpdateBill(int id, BillUpsert obj)
         {
             var model = await _unit.Bill.GetFirstOrDefaultAsync(u => u.Id == id);
@@ -117,6 +117,9 @@ namespace FeeCollectorApplication.Controllers
             model.ImageUrl = obj.ImageUrl;
             model.LicensePlate = obj.LicensePlate;
             model.VehicleTypeId = obj.VehicleTypeId;
+            var newFee = await _unit.VehicleType.GetFirstOrDefaultAsync(u => u.Id == obj.VehicleTypeId);
+            model.Fee = newFee.Price;
+
             _unit.Bill.Update(model);
             await _unit.Save();
             return Ok("Bill Updated");
