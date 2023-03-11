@@ -1,7 +1,9 @@
 /bin/
 /obj/
+/Properties/
 .vscode/
 .vs/
 appsettings.json
 appsettings.Development.json
 .env
+/FeeCollectorApplication.csproj.user
