@@ -19,7 +19,7 @@ namespace FeeCollectorApplication.Repository
             await DbSet.AddAsync(entity);
         }
             
-        public async Task<IEnumerable<T>> GetAllAsync(Expression<Func<T, bool>>? filter = null)
+        public async Task<IEnumerable<T>> GetAllAsync(Expression<Func<T, bool>> filter = null)
         {
             IQueryable<T> query = DbSet;
             if (filter != null)

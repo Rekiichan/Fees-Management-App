@@ -10,8 +10,8 @@ namespace FeeCollectorApplication.Models
         public string VehicleTypeName { get; set; }
         [Required]
         public float Price { get; set; }
-        public DateTime CreatedDate { get; set; } = DateTime.Now;
-        public DateTime LastModified { get; set; } = DateTime.Now;
+        public DateTime CreatedDate { get; set; } = DateTime.UtcNow.AddHours(7);
+        public DateTime LastModified { get; set; } = DateTime.UtcNow.AddHours(7);
     }
 
 }

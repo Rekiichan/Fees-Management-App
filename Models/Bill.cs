@@ -17,17 +17,15 @@ namespace FeeCollectorApplication.Models
         public string LicensePlate { get; set; }
         [StringLength(60)]
         public string ImageUrl { get; set; }
-        [DisplayName("Vehicle")]
         public int VehicleId { get; set; }
         [ForeignKey("VehicleId")]
-        [ValidateNever]
         public Vehicle Vehicle { get; set; }
-
         [Required]
-        [DisplayName("Vehicle Type")]
         public int VehicleTypeId { get; set; }
         [ForeignKey("VehicleTypeId")]
-        [ValidateNever]
         public VehicleType VehicleType { get; set; }
+        public float Longtitude { get; set; }
+        public float Latitude { get; set; }
+        public string PaymentUrl { get; set; }
     }
 }

@@ -12,8 +12,8 @@ namespace FeeCollectorApplication.Models
         [StringLength(20)]
         public string LicensePlate { get; set; }
         public float Price { get; set; } = 0;
-        public DateTime CreatedDate { get; set; } = DateTime.Now;
-        public DateTime LastModified { get; set; } = DateTime.Now;
+        public DateTime CreatedDate { get; set; } = DateTime.UtcNow.AddHours(7);
+        public DateTime LastModified { get; set; } = DateTime.UtcNow.AddHours(7);
         public string ImagePath { get; set; }
     }
 }

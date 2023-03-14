@@ -23,12 +23,13 @@ namespace FeeCollectorApplication.Controllers
             _unit = unit;
             _configuration= configuration;
         }
-        [Authorize(Roles = SD.Role_Admin)]
+        //[Authorize(Roles = SD.Role_Admin)]
+        [AllowAnonymous]
         [HttpGet]
         public async Task<IActionResult> GetAllBills()
         {
             var model = await _unit.Bill.GetAllAsync();
-            await Console.Out.WriteLineAsync("-------------------------------- GET ALL BILLS ----------------------------");
+            //await Console.Out.WriteLineAsync("-------------------------------- GET ALL BILLS ----------------------------");
             return Ok(model);
         }
 
@@ -70,7 +71,7 @@ namespace FeeCollectorApplication.Controllers
                     LicensePlate = obj.LicensePlate,
                     Price = vehicleTypeModel.Price,
                     ImagePath = obj.ImageUrl,
-                    LastModified = DateTime.Now
+                    LastModified = DateTime.UtcNow.AddHours(7)
                 };
                 await _unit.Vehicle.Add(newModel);
                 await _unit.Save();
@@ -83,8 +84,8 @@ namespace FeeCollectorApplication.Controllers
             }
 
             var vehicle = await _unit.Vehicle.GetFirstOrDefaultAsync(u => u.LicensePlate == obj.LicensePlate);
-            
-            DateTime timeStart = DateTime.Now;
+
+            DateTime timeStart = DateTime.UtcNow.AddHours(7);
             DateTime timeEnd = timeStart.AddHours(2);
 
             var newBillModel = new Bill()
@@ -113,14 +114,26 @@ namespace FeeCollectorApplication.Controllers
             {
                 return BadRequest();
             }
+            
+            var newFee = await _unit.VehicleType.GetFirstOrDefaultAsync(u => u.Id == obj.VehicleTypeId);
+            
             model.Location = obj.Location;
             model.ImageUrl = obj.ImageUrl;
             model.LicensePlate = obj.LicensePlate;
             model.VehicleTypeId = obj.VehicleTypeId;
-            var newFee = await _unit.VehicleType.GetFirstOrDefaultAsync(u => u.Id == obj.VehicleTypeId);
             model.Fee = newFee.Price;
-
             _unit.Bill.Update(model);
+            await _unit.Save();
+
+            var updateVehicleModel = await _unit.Vehicle.GetFirstOrDefaultAsync(u => u.LicensePlate == obj.LicensePlate);
+            var listBillOfVehicle = await _unit.Bill.GetAllAsync(u => u.LicensePlate == updateVehicleModel.LicensePlate);
+            float totalFee = 0;
+            foreach (var item in listBillOfVehicle)
+            {
+                totalFee += item.Fee;
+            }
+            updateVehicleModel.Price = totalFee;
+            _unit.Vehicle.Update(updateVehicleModel);
             await _unit.Save();
             return Ok("Bill Updated");
         }

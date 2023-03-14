@@ -19,9 +19,9 @@ namespace FeeCollectorApplication.Controllers
         }
         [Authorize(Roles =SD.Role_Admin)]
         [HttpGet]
-        public IActionResult GetAllData()
+        public async Task<IActionResult> GetAllData()
         {
-            var unit = _unitOfWork.Vehicle.GetAllAsync();
+            var unit = await _unitOfWork.Vehicle.GetAllAsync();
             //response.Result = unit;
             //response.StatusCode = HttpStatusCode.OK;
             return Ok(unit);
@@ -53,8 +53,18 @@ namespace FeeCollectorApplication.Controllers
             {
                 return NotFound();
             }
+
             model.Price = obj.Price;
             model.LicensePlate= obj.LicensePlate;
+
+            var updateBillsList = await _unitOfWork.Bill.GetAllAsync(u=>u.VehicleId == id);
+            foreach (var item in updateBillsList)
+            {
+                item.LicensePlate = obj.LicensePlate;
+                _unitOfWork.Bill.Update(item);
+                //await _unitOfWork.Save();
+            }
+
             _unitOfWork.Vehicle.Update(model);
             await _unitOfWork.Save();
             return Ok("Updated");

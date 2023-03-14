@@ -201,7 +201,7 @@ namespace FeeCollectorApplication.Migrations
                     EndTime = table.Column<DateTime>(type: "datetime2(0)", nullable: false),
                     Location = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     LicensePlate = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    ImageUrl = table.Column<string>(type: "nvarchar(60)", maxLength: 60, nullable: true),
+                    ImageUrl = table.Column<string>(type: "nvarchar(max)", maxLength: 60, nullable: true),
                     VehicleId = table.Column<int>(type: "int", nullable: false),
                     VehicleTypeId = table.Column<int>(type: "int", nullable: false)
                 },
