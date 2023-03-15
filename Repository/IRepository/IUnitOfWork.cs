@@ -6,6 +6,7 @@
         IBillRepository Bill { get; }
         IVehicleTypeRepository VehicleType { get; }
         IApplicationUserRepository ApplicationUser { get; }
+        IEmployeeRequestRepository EmployeeRequest { get; }
         Task Save();
     }
 }

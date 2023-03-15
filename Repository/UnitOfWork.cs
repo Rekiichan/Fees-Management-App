@@ -13,6 +13,7 @@ namespace FeeCollectorApplication.Repository
             Bill = new BillRepository(_db);
             VehicleType = new VehicleTypeRepository(_db);
             ApplicationUser = new ApplicationUserRepository(_db);
+            EmployeeRequest = new EmployeeRequestRepository(_db);
         }
         public IVehicleRepository Vehicle { get; private set; }
 
@@ -21,6 +22,7 @@ namespace FeeCollectorApplication.Repository
         public IVehicleTypeRepository VehicleType { get; private set; }
 
         public IApplicationUserRepository ApplicationUser { get; private set; }
+        public IEmployeeRequestRepository EmployeeRequest { get; private set; }
 
         public async Task Save()
         {

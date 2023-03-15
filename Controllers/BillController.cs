@@ -97,7 +97,9 @@ namespace FeeCollectorApplication.Controllers
                 LicensePlate = obj.LicensePlate,
                 ImageUrl = obj.ImageUrl,
                 VehicleId = vehicle.Id,
-                VehicleTypeId = obj.VehicleTypeId
+                VehicleTypeId = obj.VehicleTypeId,
+                Longtitude = obj.Longtitude,
+                Latitude = obj.Latitude
             };
 
             await _unit.Bill.Add(newBillModel);

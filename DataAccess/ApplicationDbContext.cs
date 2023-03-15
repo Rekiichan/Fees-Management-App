@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using FeeCollectorApplication.Models;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using FeeCollectorApplication.Models;
 
 namespace FeeCollectorApplication.DataAccess
 {
@@ -13,5 +14,6 @@ namespace FeeCollectorApplication.DataAccess
         public DbSet<Bill> Bills { get; set; }
         public DbSet<VehicleType> VehicleTypes { get; set; }
         public DbSet<ApplicationUser> User { get; set; }
+        public DbSet<EmployeeRequest> EmployeeRequests { get; set; }
     }
 }
