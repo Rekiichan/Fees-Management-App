@@ -23,8 +23,8 @@ namespace FeeCollectorApplication.Controllers
             _unit = unit;
             _configuration= configuration;
         }
-        //[Authorize(Roles = SD.Role_Admin)]
-        [AllowAnonymous]
+        [Authorize(Roles = SD.Role_Admin + "," + SD.Role_Employee)]
+        //[AllowAnonymous]
         [HttpGet]
         public async Task<IActionResult> GetAllBills()
         {
@@ -46,7 +46,8 @@ namespace FeeCollectorApplication.Controllers
         //    return Ok(model);
         //}
 
-        [AllowAnonymous]
+        //[AllowAnonymous]
+        [Authorize(Roles =SD.Role_Admin + "," + SD.Role_Employee)]
         [HttpGet("search/{lp}")]
         public async Task<IActionResult> GetAllBillsByLp(string lp)
         {
@@ -57,8 +58,8 @@ namespace FeeCollectorApplication.Controllers
             }
             return Ok(model);
         }
-        [AllowAnonymous]
-        //[Authorize("admin")]
+        //[AllowAnonymous]
+        [Authorize(Roles = SD.Role_Admin + "," + SD.Role_Employee)]
         [HttpPost]
         public async Task<IActionResult> AddBill(BillUpsert obj)
         {

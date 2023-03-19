@@ -36,15 +36,16 @@ namespace FeeCollectorApplication.Controllers
             _emailService = emailService;
         }
 
-        //[Authorize(Roles = SD.Role_Admin)]
-        [AllowAnonymous] // TODO: just remove in future
+        [Authorize(Roles = SD.Role_Admin)]
+        //[AllowAnonymous] // TODO: just remove in future
         [HttpPost("register/admin")]
         public async Task<IActionResult> Register([FromBody] RegisterAdminRequestDTO model)
         {
-            ApplicationUser userFromDb = await _unitOfWork.ApplicationUser.GetFirstOrDefaultAsync(u => u.Email.ToLower() == model.Email.ToLower());
-            if (userFromDb != null)
+            var userFromDb = await _unitOfWork.ApplicationUser.GetAllAsync();
+            var checkIsExist = userFromDb.FirstOrDefault(u => u.Name.ToLower() == model.Name.ToLower() || u.Email.ToLower() == model.Email.ToLower());
+            if (checkIsExist != null)
             {
-                return BadRequest("This userName has already existed!");
+                return BadRequest("this username has already existed!");
             }
 
             ApplicationUser newAdmin = new()
@@ -64,7 +65,7 @@ namespace FeeCollectorApplication.Controllers
                 }
                 catch (Exception)
                 {
-                    return BadRequest("Problem occurs when assign username or full name! Please re-check again!");
+                    return BadRequest("problem occurs when assign username or full name! please re-check again!");
                 }
                 if (result.Succeeded)
                 {
@@ -73,7 +74,7 @@ namespace FeeCollectorApplication.Controllers
                         await _roleManager.CreateAsync(new IdentityRole(SD.Role_Admin));
                     }
                     await _userManager.AddToRoleAsync(newAdmin, SD.Role_Admin);
-                    return Ok("Admin registered");
+                    return Ok("admin registered");
                 }
             }
             catch (Exception ex)
@@ -108,7 +109,7 @@ namespace FeeCollectorApplication.Controllers
                     }
                     catch (Exception)
                     {
-                        return BadRequest("Problem occurs when assign username or full name! Please re-check again!");
+                        return BadRequest("problem occurs when assign username or full name! please re-check again!");
                     }
                     if (result.Succeeded)
                     {
@@ -117,7 +118,7 @@ namespace FeeCollectorApplication.Controllers
                             await _roleManager.CreateAsync(new IdentityRole(SD.Role_Employee));
                         }
                         await _userManager.AddToRoleAsync(newEmployee, SD.Role_Employee);
-                        return Ok("Employee registered");
+                        return Ok("employee registered");
                     }
                 }
                 catch (Exception ex)
@@ -142,7 +143,7 @@ namespace FeeCollectorApplication.Controllers
             ApplicationUser userFromDb = await _unitOfWork.ApplicationUser.GetFirstOrDefaultAsync(u => u.UserName.ToLower() == userName.ToLower());
             if (userFromDb != null)
             {
-                return BadRequest("This userName has already exist!!!");
+                return BadRequest("this username has already exist!!!");
             }
 
             ApplicationUser newUser = new ApplicationUser()
@@ -162,7 +163,7 @@ namespace FeeCollectorApplication.Controllers
                 }
                 catch (Exception)
                 {
-                    return BadRequest("Problem occurs when assign username or full name! Please re-check again!");
+                    return BadRequest("problem occurs when assign username or full name! please re-check again!");
                 }
                 if (result.Succeeded)
                 {
@@ -178,7 +179,7 @@ namespace FeeCollectorApplication.Controllers
             {
                 Console.WriteLine(ex);
             }
-            return BadRequest("Failed to register new userName!");
+            return BadRequest("failed to register new username!");
         }
 
         [HttpPost("login")]
@@ -218,7 +219,7 @@ namespace FeeCollectorApplication.Controllers
             };
             if (loginResponse.UserName == null || string.IsNullOrEmpty(loginResponse.Token))
             {
-                ModelState.AddModelError("error login", "Username or password is incorrect");
+                ModelState.AddModelError("error login", "username or password is incorrect");
                 return BadRequest(ModelState);
             }
             return Ok(loginResponse);
@@ -234,7 +235,7 @@ namespace FeeCollectorApplication.Controllers
                 Subject = "string",
                 Body = WebUtility.HtmlDecode("string")
             });
-            return (Ok("Sent"));
+            return (Ok("sent"));
         }
     }
 }

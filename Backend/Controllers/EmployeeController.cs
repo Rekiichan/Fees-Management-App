@@ -50,13 +50,13 @@ namespace FeeCollectorApplication.Controllers
             return Ok(employee);
         }
 
-        [HttpGet("employee/request")]
+        [HttpGet("get-list-employee-requests")]
         public async Task<IActionResult> GetListEmployeesRequests()
         {
             var model = await _unitOfWork.EmployeeRequest.GetAllAsync();
             if (model == null)
             {
-                return NotFound("No employee request found!");
+                return NotFound("no employee request found!");
             }
             return Ok(model);
         }
@@ -65,19 +65,20 @@ namespace FeeCollectorApplication.Controllers
         [AllowAnonymous]
         public async Task<IActionResult> RegisterEmployee([FromBody] EmployeeRegisterRequestDTO model)
         {
-            ApplicationUser userFromDb = await _unitOfWork.ApplicationUser.GetFirstOrDefaultAsync(u => u.Name.ToLower() == model.Name.ToLower());
-            if (userFromDb != null)
+            var userFromDb = await _unitOfWork.ApplicationUser.GetAllAsync();
+            var checkIsExist = userFromDb.FirstOrDefault(u => u.Name.ToLower() == model.Name.ToLower() || u.Email.ToLower() == model.Email.ToLower());
+            if (checkIsExist != null)
             {
-                return BadRequest("This user has already exist!!!");
+                return BadRequest("this user has already exist!!!");
             }
             if (model.citizenIdentification == null)
             {
-                return BadRequest("This employee must have Citizen Identification");
+                return BadRequest("this employee must have citizen identification");
             }
 
             var newEmployeeRequest = new EmployeeRequest()
             {
-                //UserName = model.Name.Replace(" ", ""),
+                UserName = model.Name.Replace(" ", "").ToLower(),
                 Name = model.Name,
                 Email = model.Email,
                 PhoneNumber = model.PhoneNumber,
@@ -88,7 +89,7 @@ namespace FeeCollectorApplication.Controllers
             await _unitOfWork.EmployeeRequest.Add(newEmployeeRequest);
             await _unitOfWork.Save();
 
-            return Ok("Requested");
+            return Ok("requested");
         }
     }
 }
