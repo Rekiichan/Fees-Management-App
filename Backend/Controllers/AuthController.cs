@@ -50,7 +50,7 @@ namespace FeeCollectorApplication.Controllers
 
             ApplicationUser newAdmin = new()
             {
-                UserName = model.Name.Replace(" ", ""),
+                UserName = model.Email.ToLower().Split('@').First(),
                 Email = model.Email,
                 NormalizedEmail = model.Email.ToUpper(),
                 Name = model.Name,
@@ -92,7 +92,7 @@ namespace FeeCollectorApplication.Controllers
             {
                 ApplicationUser newEmployee = new()
                 {
-                    UserName = empRequest.Name.Replace(" ", ""),
+                    UserName = empRequest.Email.ToLower().Split('@').First(),
                     Email = empRequest.Email,
                     NormalizedEmail = empRequest.Email.ToUpper(),
                     Name = empRequest.Name,
@@ -131,7 +131,7 @@ namespace FeeCollectorApplication.Controllers
             else
             {
                 // TODO
-                return Ok();
+                return Ok("reject this employee");
             }
         }
 
@@ -139,7 +139,7 @@ namespace FeeCollectorApplication.Controllers
         [HttpPost("register/customer")] //For Customer
         public async Task<IActionResult> RegisterCustomer([FromBody] CustomerRegisterRequestDTO model)
         {
-            string userName = model.Name.Replace(" ", "");
+            var userName = model.Email.ToLower().Split('@').First();
             ApplicationUser userFromDb = await _unitOfWork.ApplicationUser.GetFirstOrDefaultAsync(u => u.UserName.ToLower() == userName.ToLower());
             if (userFromDb != null)
             {

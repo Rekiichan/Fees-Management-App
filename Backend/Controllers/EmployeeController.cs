@@ -79,7 +79,7 @@ namespace FeeCollectorApplication.Controllers
 
             var newEmployeeRequest = new EmployeeRequest()
             {
-                UserName = model.Name.Replace(" ", "").ToLower(),
+                UserName = model.Email.ToLower().Split('@').First(),
                 Name = model.Name,
                 Email = model.Email,
                 PhoneNumber = model.PhoneNumber,
