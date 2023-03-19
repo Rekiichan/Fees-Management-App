@@ -233,7 +233,7 @@ namespace FeeCollectorApplication.Controllers
         #region password process
 
         [AllowAnonymous]
-        [HttpPost("forgot-password")]
+        [HttpPost("forgot-password-request")]
         public async Task<IActionResult> ForgotPasswordRequest(ForgotPassword model)
         {
             if (IsValidEmail(model.Email))
@@ -249,7 +249,7 @@ namespace FeeCollectorApplication.Controllers
                     ToName = user.Name,
                     ToEmailAddress = model.Email,
                     Subject = "Please reset password",
-                    Body = $"Hi {user.Name},\r\nWe received a request to reset your Thuphigiaothong.com password.\r\nPlease click this link: {model.Email} to reset your password\r\nAlternatively, you can directly change your password."
+                    Body = $"Hi {user.Name},\r\nWe received a request to reset your Thuphigiaothong.com password.\r\nPlease click this Link: {model.Link} to reset your password\r\nAlternatively, you can directly change your password."
                 };
 
                 await _emailService.SendMail(emailRequest);

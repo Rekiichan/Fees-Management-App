@@ -41,7 +41,7 @@ namespace FeeCollectorApplication.Controllers
                     ToName = user.Name,
                     ToEmailAddress = model.Email,
                     Subject = "Please reset password",
-                    Body = $"Hi {user.Name},\r\nWe received a request to reset your Thuphigiaothong.com password.\r\nPlease click this link: {model.Email} to reset your password\r\nAlternatively, you can directly change your password."
+                    Body = $"Hi {user.Name},\r\nWe received a request to reset your Thuphigiaothong.com password.\r\nPlease click this Link: {model.Email} to reset your password\r\nAlternatively, you can directly change your password."
                 };
 
                 await _emailService.SendMail(emailRequest);
