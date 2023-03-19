@@ -9,8 +9,9 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
-using FeeCollectorApplication.Services;
 using Microsoft.OpenApi.Models;
+using FeeCollectorApplication.Service;
+using FeeCollectorApplication.Service.IService;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -55,7 +56,7 @@ builder.Services.AddAuthentication(options =>
 });
 
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
-builder.Services.AddSingleton<EmailHostedService>();
+builder.Services.AddScoped<IEmailService,EmailService>();
 
 builder.Services.AddControllers().AddNewtonsoftJson(options =>
 {
@@ -94,6 +95,7 @@ builder.Services.AddSwaggerGen(options =>
         }
     });
 });
+
 //services cors
 builder.Services.AddCors(p => p.AddPolicy("AllowAllHeadersPolicy", builder =>
 {
