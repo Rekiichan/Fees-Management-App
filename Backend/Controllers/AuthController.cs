@@ -185,6 +185,7 @@ namespace FeeCollectorApplication.Controllers
         #endregion
 
         #region login account
+        [AllowAnonymous]
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginRequestDTO model)
         {

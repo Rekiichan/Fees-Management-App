@@ -50,6 +50,7 @@ namespace FeeCollectorApplication.Controllers
             return Ok(employee);
         }
 
+        [Authorize(Roles = SD.Role_Admin)]
         [HttpGet("get-list-employee-requests")]
         public async Task<IActionResult> GetListEmployeesRequests()
         {

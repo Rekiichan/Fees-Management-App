@@ -33,19 +33,6 @@ namespace FeeCollectorApplication.Controllers
             return Ok(model);
         }
 
-        //[Authorize(Roles = SD.Role_Admin)]
-        //[AllowAnonymous]
-        //[HttpGet("{id:int}")]
-        //public IActionResult GetBillById(int id)
-        //{
-        //    var model = _unit.Bill.GetFirstOrDefault(u => u.Id == id);
-        //    if (model == null)
-        //    {
-        //        return NotFound();
-        //    }
-        //    return Ok(model);
-        //}
-
         //[AllowAnonymous]
         [Authorize(Roles =SD.Role_Admin + "," + SD.Role_Employee)]
         [HttpGet("search/{lp}")]
