@@ -8,11 +8,9 @@ using System.Text;
 using Microsoft.IdentityModel.Tokens;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
-using FeeCollectorApplication.Models.Dto;
 using FeeCollectorApplication.Repository.IRepository;
-using FeeCollectorApplication.Services.IService;
-using FeeCollectorApplication.Services;
-using System.Net;
+using FeeCollectorApplication.Service.IService;
+using FeeCollectorApplication.Models.Dto;
 
 namespace FeeCollectorApplication.Controllers
 {
@@ -23,11 +21,11 @@ namespace FeeCollectorApplication.Controllers
         private readonly IUnitOfWork _unitOfWork;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly RoleManager<IdentityRole> _roleManager;
-        private readonly EmailHostedService _emailService;
+        private readonly IEmailService _emailService;
         private string secretKey;
         public AuthController(IUnitOfWork db, IConfiguration options,
             UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager,
-            EmailHostedService emailService)
+            IEmailService emailService)
         {
             _unitOfWork = db;
             secretKey = options.GetValue<string>("ApiSettings:Secret");
@@ -172,7 +170,7 @@ namespace FeeCollectorApplication.Controllers
                         await _roleManager.CreateAsync(new IdentityRole(SD.Role_Customer));
                     }
                     await _userManager.AddToRoleAsync(newUser, SD.Role_Customer);
-                    return Ok("Registered");
+                    return Ok("registered");
                 }
             }
             catch (Exception ex)
@@ -229,12 +227,7 @@ namespace FeeCollectorApplication.Controllers
         [HttpPost("send-email")]
         public async Task<IActionResult> SendEmail(EmailDto emailRequest)
         {
-            await _emailService.SendEmailAsync(new EmailDto
-            {
-                EmailAddress = "nhantrongnt123@gmail.com",
-                Subject = "string",
-                Body = WebUtility.HtmlDecode("string")
-            });
+            await _emailService.SendMail(emailRequest);
             return (Ok("sent"));
         }
     }
