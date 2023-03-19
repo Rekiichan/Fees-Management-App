@@ -1,22 +1,18 @@
 ﻿using FeeCollectorApplication.Models;
-using FeeCollectorApplication.DataAccess;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using FeeCollectorApplication.Utility;
 using FeeCollectorApplication.Models.DtoModel;
-using Microsoft.AspNetCore.Mvc.ModelBinding;
 using System.IdentityModel.Tokens.Jwt;
 using System.Text;
 using Microsoft.IdentityModel.Tokens;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
-using System.Data;
-using MimeKit;
-using MimeKit.Text;
-using MailKit.Net.Smtp;
-using FeeCollectorApplication.Services.IService;
 using FeeCollectorApplication.Models.Dto;
 using FeeCollectorApplication.Repository.IRepository;
+using FeeCollectorApplication.Services.IService;
+using FeeCollectorApplication.Services;
+using System.Net;
 
 namespace FeeCollectorApplication.Controllers
 {
@@ -27,11 +23,11 @@ namespace FeeCollectorApplication.Controllers
         private readonly IUnitOfWork _unitOfWork;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly RoleManager<IdentityRole> _roleManager;
-        private readonly IEmailService _emailService;
+        private readonly EmailHostedService _emailService;
         private string secretKey;
         public AuthController(IUnitOfWork db, IConfiguration options,
             UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager,
-            IEmailService emailService)
+            EmailHostedService emailService)
         {
             _unitOfWork = db;
             secretKey = options.GetValue<string>("ApiSettings:Secret");
@@ -45,15 +41,15 @@ namespace FeeCollectorApplication.Controllers
         [HttpPost("register/admin")]
         public async Task<IActionResult> Register([FromBody] RegisterAdminRequestDTO model)
         {
-            ApplicationUser userFromDb = await _unitOfWork.ApplicationUser.GetFirstOrDefaultAsync(u => u.UserName.ToLower() == model.UserName.ToLower());
+            ApplicationUser userFromDb = await _unitOfWork.ApplicationUser.GetFirstOrDefaultAsync(u => u.Email.ToLower() == model.Email.ToLower());
             if (userFromDb != null)
             {
-                return BadRequest("This user has already existed!");
+                return BadRequest("This userName has already existed!");
             }
 
             ApplicationUser newAdmin = new()
             {
-                UserName = model.UserName,
+                UserName = model.Name.Replace(" ", ""),
                 Email = model.Email,
                 NormalizedEmail = model.Email.ToUpper(),
                 Name = model.Name,
@@ -95,7 +91,7 @@ namespace FeeCollectorApplication.Controllers
             {
                 ApplicationUser newEmployee = new()
                 {
-                    UserName = empRequest.UserName,
+                    UserName = empRequest.Name.Replace(" ", ""),
                     Email = empRequest.Email,
                     NormalizedEmail = empRequest.Email.ToUpper(),
                     Name = empRequest.Name,
@@ -142,15 +138,16 @@ namespace FeeCollectorApplication.Controllers
         [HttpPost("register/customer")] //For Customer
         public async Task<IActionResult> RegisterCustomer([FromBody] CustomerRegisterRequestDTO model)
         {
-            ApplicationUser userFromDb = await _unitOfWork.ApplicationUser.GetFirstOrDefaultAsync(u => u.Name.ToLower() == model.Name.ToLower());
+            string userName = model.Name.Replace(" ", "");
+            ApplicationUser userFromDb = await _unitOfWork.ApplicationUser.GetFirstOrDefaultAsync(u => u.UserName.ToLower() == userName.ToLower());
             if (userFromDb != null)
             {
-                return BadRequest("This user has already exist!!!");
+                return BadRequest("This userName has already exist!!!");
             }
 
             ApplicationUser newUser = new ApplicationUser()
             {
-                UserName = model.UserName,
+                UserName = userName,
                 Email = model.Email,
                 NormalizedEmail = model.Email.ToUpper(),
                 Name = model.Name,
@@ -181,13 +178,13 @@ namespace FeeCollectorApplication.Controllers
             {
                 Console.WriteLine(ex);
             }
-            return BadRequest("Failed to register new user!");
+            return BadRequest("Failed to register new userName!");
         }
 
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginRequestDTO model)
         {
-            ApplicationUser userFromDb = await _unitOfWork.ApplicationUser.GetFirstOrDefaultAsync(u => u.UserName.ToLower() == model.UserName.ToLower());
+            ApplicationUser userFromDb = await _unitOfWork.ApplicationUser.GetFirstOrDefaultAsync(u => u.Email.ToLower() == model.Email.ToLower());
             bool isValid = await _userManager.CheckPasswordAsync(userFromDb, model.Password);
             if (isValid == false)
             {
@@ -227,10 +224,16 @@ namespace FeeCollectorApplication.Controllers
             return Ok(loginResponse);
         }
 
+        [AllowAnonymous]
         [HttpPost("send-email")]
-        public IActionResult SendEmail(EmailDto emailRequest)
+        public async Task<IActionResult> SendEmail(EmailDto emailRequest)
         {
-            _emailService.sendEmail(emailRequest);
+            await _emailService.SendEmailAsync(new EmailDto
+            {
+                EmailAddress = "nhantrongnt123@gmail.com",
+                Subject = "string",
+                Body = WebUtility.HtmlDecode("string")
+            });
             return (Ok("Sent"));
         }
     }

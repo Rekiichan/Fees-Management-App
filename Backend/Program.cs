@@ -9,9 +9,8 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
-using Microsoft.OpenApi.Models;
-using FeeCollectorApplication.Services.IService;
 using FeeCollectorApplication.Services;
+using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -56,7 +55,8 @@ builder.Services.AddAuthentication(options =>
 });
 
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
-builder.Services.AddScoped<IEmailService, EmailService>();
+builder.Services.AddSingleton<EmailHostedService>();
+
 builder.Services.AddControllers().AddNewtonsoftJson(options =>
 {
     options.SerializerSettings.ContractResolver = new DefaultContractResolver();

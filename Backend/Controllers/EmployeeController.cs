@@ -77,7 +77,7 @@ namespace FeeCollectorApplication.Controllers
 
             var newEmployeeRequest = new EmployeeRequest()
             {
-                UserName = model.UserName,
+                //UserName = model.Name.Replace(" ", ""),
                 Name = model.Name,
                 Email = model.Email,
                 PhoneNumber = model.PhoneNumber,
