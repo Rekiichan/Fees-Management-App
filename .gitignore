@@ -1,4 +1,5 @@
 /Backend/bin/
+deploy/
 /Backend/obj/
 /Backend/Properties/
 /Backend/.vscode/
@@ -7,3 +8,5 @@
 /Backend/appsettings.Development.json
 /Backend/.env
 /Backend/FeeCollectorApplication.csproj.user
+/Service/obj/Debug/net6.0/Service.csproj.AssemblyReference.cache
+/Data/obj/Debug/net6.0/Data.csproj.AssemblyReference.cache
