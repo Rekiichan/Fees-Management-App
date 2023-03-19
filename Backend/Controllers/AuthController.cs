@@ -9,8 +9,9 @@ using Microsoft.IdentityModel.Tokens;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using FeeCollectorApplication.Repository.IRepository;
-using FeeCollectorApplication.Service.IService;
 using FeeCollectorApplication.Models.Dto;
+using Models.Models.Dto;
+using FeeCollectorApplication.Service.IService;
 
 namespace FeeCollectorApplication.Controllers
 {
@@ -19,9 +20,9 @@ namespace FeeCollectorApplication.Controllers
     public class AuthController : ControllerBase
     {
         private readonly IUnitOfWork _unitOfWork;
+        private readonly IEmailService _emailService;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly RoleManager<IdentityRole> _roleManager;
-        private readonly IEmailService _emailService;
         private string secretKey;
         public AuthController(IUnitOfWork db, IConfiguration options,
             UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager,
@@ -34,6 +35,7 @@ namespace FeeCollectorApplication.Controllers
             _emailService = emailService;
         }
 
+        #region register account
         [Authorize(Roles = SD.Role_Admin)]
         //[AllowAnonymous] // TODO: just remove in future
         [HttpPost("register/admin")]
@@ -63,7 +65,7 @@ namespace FeeCollectorApplication.Controllers
                 }
                 catch (Exception)
                 {
-                    return BadRequest("problem occurs when assign username or full name! please re-check again!");
+                    return BadRequest("problem occurs when assign username or full name, please re-check again");
                 }
                 if (result.Succeeded)
                 {
@@ -97,7 +99,7 @@ namespace FeeCollectorApplication.Controllers
                     PhoneNumber = empRequest.PhoneNumber,
                     citizenIdentification = empRequest.citizenIdentification
                 };
-                string FirstPassword = "abcde12345"; // call email service
+                string FirstPassword = "abcde12345"; // call Email service
                 try
                 {
                     IdentityResult result;
@@ -180,6 +182,9 @@ namespace FeeCollectorApplication.Controllers
             return BadRequest("failed to register new username!");
         }
 
+        #endregion
+
+        #region login account
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginRequestDTO model)
         {
@@ -223,12 +228,75 @@ namespace FeeCollectorApplication.Controllers
             return Ok(loginResponse);
         }
 
+        #endregion
+
+        #region password process
+
         [AllowAnonymous]
-        [HttpPost("send-email")]
-        public async Task<IActionResult> SendEmail(EmailDto emailRequest)
+        [HttpPost("forgot-password")]
+        public async Task<IActionResult> ForgotPasswordRequest(ForgotPassword model)
         {
-            await _emailService.SendMail(emailRequest);
-            return (Ok("sent"));
+            if (IsValidEmail(model.Email))
+            {
+                var user = await _unitOfWork.ApplicationUser.GetFirstOrDefaultAsync(x => x.Email == model.Email);
+                if (user == null)
+                {
+                    return BadRequest("this Email has not been already exist");
+                }
+
+                EmailDto emailRequest = new EmailDto()
+                {
+                    ToName = user.Name,
+                    ToEmailAddress = model.Email,
+                    Subject = "Please reset password",
+                    Body = $"Hi {user.Name},\r\nWe received a request to reset your Thuphigiaothong.com password.\r\nPlease click this link: {model.Email} to reset your password\r\nAlternatively, you can directly change your password."
+                };
+
+                await _emailService.SendMail(emailRequest);
+                return Ok("sent");
+            }
+            return BadRequest($"{model.Email} is an invalid Email address");
         }
+
+        [AllowAnonymous]
+        [HttpPost("reset-password")]
+        public async Task<IActionResult> ResetPassword(ResetPassword model)
+        {
+            var applicationUser = await _unitOfWork.ApplicationUser.GetFirstOrDefaultAsync(u => u.Email.ToLower() == model.Email.ToLower());
+            if (applicationUser == null)
+            {
+                return BadRequest("cant find this user");
+            }
+
+            var result = await _userManager.ChangePasswordAsync(applicationUser, model.OldPassword, model.NewPassword);
+            if (result.Succeeded)
+            {
+                return Ok("password changed");
+            }
+            
+            return BadRequest("password changes fail");
+        }
+
+        #endregion
+
+        #region process function
+        bool IsValidEmail(string email)
+        {
+            if (string.IsNullOrWhiteSpace(email))
+            {
+                return false;
+            }
+            try
+            {
+                // Use the built-in MailAddress class to validate the Email format
+                var addr = new System.Net.Mail.MailAddress(email);
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+        #endregion
     }
 }

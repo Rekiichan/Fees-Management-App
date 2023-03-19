@@ -13,7 +13,7 @@ namespace FeeCollectorApplication.Service
             var toAddress = new MailAddress(emailDto.ToEmailAddress, emailDto.ToName);
             const string fromPassword = "dfxramejijwpjuch";
             string subject = emailDto.Subject;
-            string body = "Chúc mừng bạn đã đậu và trở thành nhân viên chính thức của Googlee AI Reasearch";
+            string body = emailDto.Body;
 
             var smtp = new SmtpClient
             {
