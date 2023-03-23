@@ -1,13 +1,8 @@
-﻿using Azure.Identity;
-using FeeCollectorApplication.Models;
-using FeeCollectorApplication.Models.Dto;
-using FeeCollectorApplication.Repository;
+﻿using FeeCollectorApplication.Models;
 using FeeCollectorApplication.Repository.IRepository;
 using FeeCollectorApplication.Utility;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using System.Data;
 
 namespace FeeCollectorApplication.Controllers
 {

@@ -1,17 +1,18 @@
 ﻿using FeeCollectorApplication.Models;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc;
 using FeeCollectorApplication.Utility;
 using FeeCollectorApplication.Models.DtoModel;
-using System.IdentityModel.Tokens.Jwt;
-using System.Text;
-using Microsoft.IdentityModel.Tokens;
-using System.Security.Claims;
-using Microsoft.AspNetCore.Authorization;
 using FeeCollectorApplication.Repository.IRepository;
 using FeeCollectorApplication.Models.Dto;
-using Models.Models.Dto;
 using FeeCollectorApplication.Service.IService;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.AspNetCore.Authorization;
+using System.IdentityModel.Tokens.Jwt;
+using System.Text;
+using System.Security.Claims;
+using Models.Models.Dto;
+
 
 namespace FeeCollectorApplication.Controllers
 {
@@ -42,10 +43,11 @@ namespace FeeCollectorApplication.Controllers
         public async Task<IActionResult> Register([FromBody] RegisterAdminRequestDTO model)
         {
             var userFromDb = await _unitOfWork.ApplicationUser.GetAllAsync();
-            var checkIsExist = userFromDb.FirstOrDefault(u => u.Name.ToLower() == model.Name.ToLower() || u.Email.ToLower() == model.Email.ToLower());
+            var checkIsExist = userFromDb.FirstOrDefault(u => u.NormalizedEmail == model.Email.ToUpper());
             if (checkIsExist != null)
             {
-                return BadRequest("this username has already existed!");
+                ModelState.AddModelError("error", "người dùng này đã tồn tại, vui lòng thử lại");
+                return BadRequest(ModelState);
             }
 
             ApplicationUser newAdmin = new()
@@ -65,7 +67,8 @@ namespace FeeCollectorApplication.Controllers
                 }
                 catch (Exception)
                 {
-                    return BadRequest("problem occurs when assign username or full name, please re-check again");
+                    ModelState.AddModelError("error", "lỗi xảy ra liên quan đến email hoặc username, vui lòng kiểm tra lại");
+                    return BadRequest(ModelState);
                 }
                 if (result.Succeeded)
                 {
@@ -74,65 +77,90 @@ namespace FeeCollectorApplication.Controllers
                         await _roleManager.CreateAsync(new IdentityRole(SD.Role_Admin));
                     }
                     await _userManager.AddToRoleAsync(newAdmin, SD.Role_Admin);
-                    return Ok("admin registered");
+                    return Ok("tạo tài khoản admin thành công");
                 }
             }
             catch (Exception ex)
             {
                 Console.WriteLine(ex);
             }
-            return BadRequest("please re-check the information");
+            ModelState.AddModelError("error", "vui lòng kiểm tra lại thông tin");
+            return BadRequest(ModelState);
         }
 
         [Authorize(Roles = SD.Role_Admin)]
         [HttpPost("register/employee")]
-        public async Task<IActionResult> RegisterEmployee(EmployeeRequest empRequest, bool isAccept)
+        public async Task<IActionResult> RegisterEmployee(EmployeeResponse empRequest)
         {
-            if (isAccept)
+            ApplicationUser userFromDb = await _unitOfWork.ApplicationUser.GetFirstOrDefaultAsync(u => u.NormalizedEmail == empRequest.Email.ToUpper()
+            || empRequest.citizenIdentification == u.citizenIdentification);
+            if (userFromDb != null)
             {
-                ApplicationUser newEmployee = new()
-                {
-                    UserName = empRequest.Email.ToLower().Split('@').First(),
-                    Email = empRequest.Email,
-                    NormalizedEmail = empRequest.Email.ToUpper(),
-                    Name = empRequest.Name,
-                    PhoneNumber = empRequest.PhoneNumber,
-                    citizenIdentification = empRequest.citizenIdentification
-                };
-                string FirstPassword = "abcde12345"; // call Email service
+                ModelState.AddModelError("error", "Email hoặc CCCD/CMND này đã được sử dụng, vui lòng thử cách khác");
+                return BadRequest(ModelState);
+            }
+            ApplicationUser newEmployee = new()
+            {
+                UserName = empRequest.Email.ToLower().Split('@').First(),
+                Email = empRequest.Email,
+                NormalizedEmail = empRequest.Email.ToUpper(),
+                Name = empRequest.Name,
+                PhoneNumber = empRequest.PhoneNumber,
+                citizenIdentification = empRequest.citizenIdentification
+            };
+            if (newEmployee.citizenIdentification.Length != 12 || newEmployee.citizenIdentification.Length != 9)
+            {
+                ModelState.AddModelError("error", "CCCD/CMND không hợp lệ");
+            }
+            string FirstPassword = "abcde12345"; // call Email service
+            try
+            {
+                IdentityResult result;
                 try
                 {
-                    IdentityResult result;
-                    try
-                    {
-                        result = await _userManager.CreateAsync(newEmployee, FirstPassword);
-                    }
-                    catch (Exception)
-                    {
-                        return BadRequest("problem occurs when assign username or full name! please re-check again!");
-                    }
-                    if (result.Succeeded)
-                    {
-                        if (!_roleManager.RoleExistsAsync(SD.Role_Employee).GetAwaiter().GetResult())
-                        {
-                            await _roleManager.CreateAsync(new IdentityRole(SD.Role_Employee));
-                        }
-                        await _userManager.AddToRoleAsync(newEmployee, SD.Role_Employee);
-                        return Ok("employee registered");
-                    }
+                    result = await _userManager.CreateAsync(newEmployee, FirstPassword);
                 }
-                catch (Exception ex)
+                catch (Exception)
                 {
-                    Console.WriteLine(ex);
+                    ModelState.AddModelError("error", "lỗi xảy ra liên quan đến email hoặc username, vui lòng kiểm tra lại");
+                    return BadRequest(ModelState);
                 }
-                return BadRequest("please re-check the information");
+                if (result.Succeeded)
+                {
+                    if (!_roleManager.RoleExistsAsync(SD.Role_Employee).GetAwaiter().GetResult())
+                    {
+                        await _roleManager.CreateAsync(new IdentityRole(SD.Role_Employee));
+                    }
+                    await _userManager.AddToRoleAsync(newEmployee, SD.Role_Employee);
+                    
+                    SendMailRegisterEmployee(newEmployee, FirstPassword);
+                    var employeeRemove = await _unitOfWork.EmployeeRequest.GetFirstOrDefaultAsync(u => u.Email.ToLower() == newEmployee.Email.ToLower());
+                    _unitOfWork.EmployeeRequest.Remove(employeeRemove);
+                    await _unitOfWork.Save();
+                    return Ok("employee registered");
+                }
             }
-
-            else
+            catch (Exception ex)
             {
-                // TODO
-                return Ok("reject this employee");
+                Console.WriteLine(ex);
             }
+            ModelState.AddModelError("error", "vui lòng kiểm tra lại thông tin");
+            return BadRequest(ModelState);
+        }
+
+        [Authorize(Roles = SD.Role_Admin)]
+        [HttpPost("reject/employee")]
+        public async Task<IActionResult> RejectEmployee(EmployeeResponse empRequest)
+        {
+            var employeeReject = await _unitOfWork.EmployeeRequest.GetFirstOrDefaultAsync(u => u.Email.ToLower() == empRequest.Email.ToLower());
+            if (employeeReject == null)
+            {
+                ModelState.AddModelError("error", "Nhân viên này không tồn tại, vui lòng kiểm tra lại");
+                return BadRequest(ModelState);
+            }
+            _unitOfWork.EmployeeRequest.Remove(employeeReject);
+            await _unitOfWork.Save();
+            return Ok();
         }
 
         [AllowAnonymous]
@@ -143,7 +171,8 @@ namespace FeeCollectorApplication.Controllers
             ApplicationUser userFromDb = await _unitOfWork.ApplicationUser.GetFirstOrDefaultAsync(u => u.UserName.ToLower() == userName.ToLower());
             if (userFromDb != null)
             {
-                return BadRequest("this username has already exist!!!");
+                ModelState.AddModelError("error", "email hoặc tên đăng nhập đã tồn tại, vui lòng sử dụng cái khác");
+                return BadRequest(ModelState);
             }
 
             ApplicationUser newUser = new ApplicationUser()
@@ -163,7 +192,8 @@ namespace FeeCollectorApplication.Controllers
                 }
                 catch (Exception)
                 {
-                    return BadRequest("problem occurs when assign username or full name! please re-check again!");
+                    ModelState.AddModelError("error", "lỗi xảy ra liên quan đến email hoặc username, vui lòng kiểm tra lại");
+                    return BadRequest(ModelState);
                 }
                 if (result.Succeeded)
                 {
@@ -172,14 +202,15 @@ namespace FeeCollectorApplication.Controllers
                         await _roleManager.CreateAsync(new IdentityRole(SD.Role_Customer));
                     }
                     await _userManager.AddToRoleAsync(newUser, SD.Role_Customer);
-                    return Ok("registered");
+                    return Ok("tạo tài khoản thành công");
                 }
             }
             catch (Exception ex)
             {
                 Console.WriteLine(ex);
             }
-            return BadRequest("failed to register new username!");
+            ModelState.AddModelError("error", "tạo tài khoản thất bại, vui lòng kiểm tra lại");
+            return BadRequest(ModelState);
         }
 
         #endregion
@@ -193,7 +224,8 @@ namespace FeeCollectorApplication.Controllers
             bool isValid = await _userManager.CheckPasswordAsync(userFromDb, model.Password);
             if (isValid == false)
             {
-                return BadRequest(new LoginResponseDTO());
+                ModelState.AddModelError("error", "tên đăng nhập hoặc mật khẩu bị sai");
+                return BadRequest(ModelState);
             }
             // if login success, have to generate JWT Token
             var roles = await _userManager.GetRolesAsync(userFromDb);
@@ -223,7 +255,7 @@ namespace FeeCollectorApplication.Controllers
             };
             if (loginResponse.UserName == null || string.IsNullOrEmpty(loginResponse.Token))
             {
-                ModelState.AddModelError("error login", "username or password is incorrect");
+                ModelState.AddModelError("error login", "tên đăng nhập hoặc mật khẩu bị sai");
                 return BadRequest(ModelState);
             }
             return Ok(loginResponse);
@@ -274,13 +306,28 @@ namespace FeeCollectorApplication.Controllers
             {
                 return Ok("password changed");
             }
-            
+
             return BadRequest("password changes fail");
         }
 
         #endregion
 
         #region process function
+
+        private void SendMailRegisterEmployee(ApplicationUser employee, string password)
+        {
+            EmailDto email = new EmailDto();
+            email.Subject = "Chúc mừng trở thành nhân viên của hệ thống thuphigiaothong.com";
+            email.Body = $"Đây là tài khoản của bạn:\n" +
+                $"Email: {employee.Email}\n" +
+                $"Tên đăng nhập: {employee.UserName}\n" +
+                $"Mật khẩu: {password}\n" +
+                $"\nVui lòng đổi mật khẩu ngay lập tức đề phòng người lạ truy cập bằng mật khẩu khởi tạo này";
+            email.ToName = employee.Name;
+            email.ToEmailAddress = employee.Email;
+            _emailService.SendMail(email);
+        }
+
         bool IsValidEmail(string email)
         {
             if (string.IsNullOrWhiteSpace(email))
@@ -289,7 +336,6 @@ namespace FeeCollectorApplication.Controllers
             }
             try
             {
-                // Use the built-in MailAddress class to validate the Email format
                 var addr = new System.Net.Mail.MailAddress(email);
                 return true;
             }
