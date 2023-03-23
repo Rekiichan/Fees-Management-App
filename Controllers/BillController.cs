@@ -48,12 +48,15 @@ namespace FeeCollectorApplication.Controllers
         [HttpGet("get-bill-based-on-emp")]
         public async Task<IActionResult> GetAllBillByEmp()
         {
-            ClaimsIdentity? claimsIdentity = User.Identity as ClaimsIdentity;
-            var EmployeeName = claimsIdentity.Claims.FirstOrDefault().Value;
-            var UserInRole = await _userManager.GetUsersInRoleAsync(SD.Role_Employee);
-            var EmployeeId = UserInRole.FirstOrDefault(u => u.Name == EmployeeName).Id;
+            // Get claim from User that get from ControlerBase
+            var claimIdentities = User.Claims.ToList();
 
+            // Get id from claim
+            var EmployeeId = claimIdentities[1].Value;
+
+            // get all bills of employee
             var model = await _unit.Bill.GetAllAsync(u => u.UserId == EmployeeId);
+
             return Ok(model);
         }
         //[AllowAnonymous]
