@@ -2,34 +2,37 @@
 using FeeCollectorApplication.Repository.IRepository;
 using FeeCollectorApplication.Utility;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using System.Runtime.InteropServices;
+using System.Security.Claims;
 
 namespace FeeCollectorApplication.Controllers
 {
     [Route("api/bill")]
-    [Authorize]
+    [Authorize(Roles = SD.Role_Admin + "," + SD.Role_Employee)]
     [ApiController]
     public class BillController : ControllerBase
     {
         private readonly IUnitOfWork _unit;
         private readonly IConfiguration _configuration;
-        public BillController(IUnitOfWork unit, IConfiguration configuration)
+        private readonly UserManager<ApplicationUser> _userManager;
+        public BillController(IUnitOfWork unit, IConfiguration configuration, UserManager<ApplicationUser> userManager)
         {
             _unit = unit;
-            _configuration= configuration;
+            _configuration = configuration;
+            _userManager = userManager;
         }
-        [Authorize(Roles = SD.Role_Admin + "," + SD.Role_Employee)]
-        //[AllowAnonymous]
+        [Authorize(Roles = SD.Role_Admin)]
         [HttpGet]
         public async Task<IActionResult> GetAllBills()
         {
             var model = await _unit.Bill.GetAllAsync();
-            //await Console.Out.WriteLineAsync("-------------------------------- GET ALL BILLS ----------------------------");
             return Ok(model);
         }
 
         //[AllowAnonymous]
-        [Authorize(Roles =SD.Role_Admin + "," + SD.Role_Employee)]
+        [Authorize(Roles = SD.Role_Admin)]
         [HttpGet("search/{lp}")]
         public async Task<IActionResult> GetAllBillsByLp(string lp)
         {
@@ -40,7 +43,21 @@ namespace FeeCollectorApplication.Controllers
             }
             return Ok(model);
         }
+
+        [Authorize(Roles = SD.Role_Admin + "," + SD.Role_Employee)]
+        [HttpGet("get-bill-based-on-emp")]
+        public async Task<IActionResult> GetAllBillByEmp()
+        {
+            ClaimsIdentity? claimsIdentity = User.Identity as ClaimsIdentity;
+            var EmployeeName = claimsIdentity.Claims.FirstOrDefault().Value;
+            var UserInRole = await _userManager.GetUsersInRoleAsync(SD.Role_Employee);
+            var EmployeeId = UserInRole.FirstOrDefault(u => u.Name == EmployeeName).Id;
+
+            var model = await _unit.Bill.GetAllAsync(u => u.UserId == EmployeeId);
+            return Ok(model);
+        }
         //[AllowAnonymous]
+        //[Authorize(Roles = SD.Role_Employee)]
         [Authorize(Roles = SD.Role_Admin + "," + SD.Role_Employee)]
         [HttpPost]
         public async Task<IActionResult> AddBill(BillUpsert obj)
@@ -71,6 +88,11 @@ namespace FeeCollectorApplication.Controllers
             DateTime timeStart = DateTime.UtcNow.AddHours(7);
             DateTime timeEnd = timeStart.AddHours(2);
 
+            ClaimsIdentity? claimsIdentity = User.Identity as ClaimsIdentity;
+            var EmployeeName = claimsIdentity.Claims.FirstOrDefault().Value;
+            var UserInRole = await _userManager.GetUsersInRoleAsync(SD.Role_Employee);
+            var EmployeeId = UserInRole.FirstOrDefault(u => u.Name == EmployeeName).Id;
+
             var newBillModel = new Bill()
             {
                 CreatedTime = timeStart,
@@ -82,7 +104,8 @@ namespace FeeCollectorApplication.Controllers
                 VehicleId = vehicle.Id,
                 VehicleTypeId = obj.VehicleTypeId,
                 Longtitude = obj.Longtitude,
-                Latitude = obj.Latitude
+                Latitude = obj.Latitude,
+                UserId = EmployeeId
             };
 
             await _unit.Bill.Add(newBillModel);

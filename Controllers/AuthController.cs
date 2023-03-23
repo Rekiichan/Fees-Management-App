@@ -108,9 +108,10 @@ namespace FeeCollectorApplication.Controllers
                 PhoneNumber = empRequest.PhoneNumber,
                 citizenIdentification = empRequest.citizenIdentification
             };
-            if (newEmployee.citizenIdentification.Length != 12 || newEmployee.citizenIdentification.Length != 9)
+            if (!(newEmployee.citizenIdentification.Length == 12 || newEmployee.citizenIdentification.Length == 9))
             {
                 ModelState.AddModelError("error", "CCCD/CMND không hợp lệ");
+                return BadRequest(ModelState);
             }
             string FirstPassword = "abcde12345"; // call Email service
             try
@@ -132,7 +133,7 @@ namespace FeeCollectorApplication.Controllers
                         await _roleManager.CreateAsync(new IdentityRole(SD.Role_Employee));
                     }
                     await _userManager.AddToRoleAsync(newEmployee, SD.Role_Employee);
-                    
+
                     SendMailRegisterEmployee(newEmployee, FirstPassword);
                     var employeeRemove = await _unitOfWork.EmployeeRequest.GetFirstOrDefaultAsync(u => u.Email.ToLower() == newEmployee.Email.ToLower());
                     _unitOfWork.EmployeeRequest.Remove(employeeRemove);
@@ -143,9 +144,10 @@ namespace FeeCollectorApplication.Controllers
             catch (Exception ex)
             {
                 Console.WriteLine(ex);
+                ModelState.AddModelError("error", "vui lòng kiểm tra lại thông tin");
+                return BadRequest(ModelState);
             }
-            ModelState.AddModelError("error", "vui lòng kiểm tra lại thông tin");
-            return BadRequest(ModelState);
+            return Ok();
         }
 
         [Authorize(Roles = SD.Role_Admin)]

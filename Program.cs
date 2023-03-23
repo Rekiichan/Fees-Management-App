@@ -12,6 +12,7 @@ using System.Text;
 using Microsoft.OpenApi.Models;
 using FeeCollectorApplication.Service;
 using FeeCollectorApplication.Service.IService;
+using FeeCollectorApplication.Utility;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -101,6 +102,16 @@ builder.Services.AddCors(p => p.AddPolicy("AllowAllHeadersPolicy", builder =>
 {
     builder.WithOrigins("*").AllowAnyMethod().AllowAnyHeader();
 }));
+
+// add policy
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy(SD.Policy_BillManagement, policyBuilder =>
+    {
+        policyBuilder.RequireAuthenticatedUser();
+        policyBuilder.RequireRole(SD.Role_Employee);
+    });
+});
 
 var app = builder.Build();
 app.UseCors("AllowAllHeadersPolicy");

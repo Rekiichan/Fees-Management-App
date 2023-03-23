@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Microsoft.Identity.Client;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace FeeCollectorApplication.Models
@@ -25,5 +26,9 @@ namespace FeeCollectorApplication.Models
         public float Longtitude { get; set; }
         public float Latitude { get; set; }
         public string PaymentUrl { get; set; }
+
+        public string UserId { get; set; }
+        [ForeignKey("UserId")]
+        public ApplicationUser ApplicationUser { get; set; }
     }
 }
