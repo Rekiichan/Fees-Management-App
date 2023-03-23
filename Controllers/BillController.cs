@@ -91,10 +91,11 @@ namespace FeeCollectorApplication.Controllers
             DateTime timeStart = DateTime.UtcNow.AddHours(7);
             DateTime timeEnd = timeStart.AddHours(2);
 
-            ClaimsIdentity? claimsIdentity = User.Identity as ClaimsIdentity;
-            var EmployeeName = claimsIdentity.Claims.FirstOrDefault().Value;
-            var UserInRole = await _userManager.GetUsersInRoleAsync(SD.Role_Employee);
-            var EmployeeId = UserInRole.FirstOrDefault(u => u.Name == EmployeeName).Id;
+            // Get claim from User that get from ControlerBase
+            var claimIdentities = User.Claims.ToList();
+
+            // Get id from claim
+            var EmployeeId = claimIdentities[1].Value;
 
             var newBillModel = new Bill()
             {
