@@ -30,7 +30,7 @@ namespace FeeCollectorApplication.Controllers
             var Vehicle = await _unit.Vehicle.GetFirstOrDefaultAsync(u => u.LicensePlate== lp);
             if (Vehicle == null)
             {
-                return NotFound();
+                return NotFound("No result found");
             }
             return Ok(Vehicle);
         }

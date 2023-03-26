@@ -17,7 +17,8 @@ namespace FeeCollectorApplication.Controllers
             _unitOfWork = unitOfWork;
         }
         [HttpGet]
-        [AllowAnonymous]
+        //[AllowAnonymous]
+        [Authorize(Roles = SD.Role_Employee + "," + SD.Role_Admin)]
         public async Task<IActionResult> GetAllVehicleType()
         {
             var model = await _unitOfWork.VehicleType.GetAllAsync();

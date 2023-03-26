@@ -9,7 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace FeeCollectorApplication.Controllers
 {
     [Route("api/[controller]")]
-    [Authorize]
+    [Authorize(Roles = SD.Role_Employee)]
     [ApiController]
     public class EmployeeController : ControllerBase
     {
@@ -37,7 +37,7 @@ namespace FeeCollectorApplication.Controllers
             return Ok(usersInRole);
         }
         [HttpGet("id")]
-        [Authorize(Roles = SD.Role_Admin + "," + SD.Role_Employee)]
+        [Authorize(Roles = SD.Role_Admin)]
         public async Task<ActionResult<ApplicationUser>> GetEmployeeById(string id)
         {
             var role = await _roleManager.FindByNameAsync(SD.Role_Employee);
@@ -64,7 +64,7 @@ namespace FeeCollectorApplication.Controllers
 
         [HttpPost("request")] //For Employee Request to Become a Employee of Store
         [AllowAnonymous]
-        public async Task<IActionResult> RegisterEmployee([FromBody] EmployeeRegisterRequestDTO model)
+        public async Task<IActionResult> RequestToRegisterEmployee([FromBody] EmployeeRegisterRequestDTO model)
         {
             var userFromDb = await _unitOfWork.ApplicationUser.GetAllAsync();
             var checkIsExist = userFromDb.FirstOrDefault(u => u.Name.ToLower() == model.Name.ToLower() || u.Email.ToLower() == model.Email.ToLower());

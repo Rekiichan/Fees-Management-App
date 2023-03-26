@@ -10,7 +10,8 @@ using System.Security.Claims;
 namespace FeeCollectorApplication.Controllers
 {
     [Route("api/bill")]
-    [Authorize(Roles = SD.Role_Admin + "," + SD.Role_Employee)]
+    //[Authorize(Roles = SD.Role_Admin + "," + SD.Role_Employee)]
+    [Authorize(Policy = SD.Policy_BillManager)]
     [ApiController]
     public class BillController : ControllerBase
     {
@@ -23,7 +24,7 @@ namespace FeeCollectorApplication.Controllers
             _configuration = configuration;
             _userManager = userManager;
         }
-        [Authorize(Roles = SD.Role_Admin)]
+        //[Authorize(Roles = SD.Role_Admin)]
         [HttpGet]
         public async Task<IActionResult> GetAllBills()
         {
@@ -32,7 +33,7 @@ namespace FeeCollectorApplication.Controllers
         }
 
         //[AllowAnonymous]
-        [Authorize(Roles = SD.Role_Admin)]
+        //[Authorize(Roles = SD.Role_Admin)]
         [HttpGet("search/{lp}")]
         public async Task<IActionResult> GetAllBillsByLp(string lp)
         {
@@ -44,7 +45,7 @@ namespace FeeCollectorApplication.Controllers
             return Ok(model);
         }
 
-        [Authorize(Roles = SD.Role_Admin + "," + SD.Role_Employee)]
+        //[Authorize(Roles = SD.Role_Admin + "," + SD.Role_Employee)]
         [HttpGet("get-bill-based-on-emp")]
         public async Task<IActionResult> GetAllBillByEmp()
         {
@@ -61,7 +62,7 @@ namespace FeeCollectorApplication.Controllers
         }
         //[AllowAnonymous]
         //[Authorize(Roles = SD.Role_Employee)]
-        [Authorize(Roles = SD.Role_Admin + "," + SD.Role_Employee)]
+        //[Authorize(Roles = SD.Role_Admin + "," + SD.Role_Employee)]
         [HttpPost]
         public async Task<IActionResult> AddBill(BillUpsert obj)
         {
@@ -117,7 +118,7 @@ namespace FeeCollectorApplication.Controllers
             string response = _configuration.GetValue<string>("DomainName:Domain") + "/api/information/" + newBillModel.LicensePlate;
             return Ok(response);
         }
-        [Authorize(Roles = SD.Role_Admin)]
+        //[Authorize(Roles = SD.Role_Admin)]
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateBill(int id, BillUpsert obj)
         {

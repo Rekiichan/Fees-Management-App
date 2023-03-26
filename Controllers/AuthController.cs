@@ -18,6 +18,7 @@ namespace FeeCollectorApplication.Controllers
 {
     [Route("api/auth")]
     [ApiController]
+    [Authorize]
     public class AuthController : ControllerBase
     {
         private readonly IUnitOfWork _unitOfWork;
@@ -37,10 +38,9 @@ namespace FeeCollectorApplication.Controllers
         }
 
         #region register account
-        [Authorize(Roles = SD.Role_Admin)]
-        //[AllowAnonymous] // TODO: just remove in future
+        [Authorize(Policy = SD.Policy_SuperAdmin)]
         [HttpPost("register/admin")]
-        public async Task<IActionResult> Register([FromBody] RegisterAdminRequestDTO model)
+        public async Task<IActionResult> RegisterAdmin([FromBody] RegisterAdminRequestDTO model)
         {
             var userFromDb = await _unitOfWork.ApplicationUser.GetAllAsync();
             var checkIsExist = userFromDb.FirstOrDefault(u => u.NormalizedEmail == model.Email.ToUpper());
@@ -88,7 +88,7 @@ namespace FeeCollectorApplication.Controllers
             return BadRequest(ModelState);
         }
 
-        [Authorize(Roles = SD.Role_Admin)]
+        [Authorize(Policy = SD.Policy_AccountManager)]
         [HttpPost("register/employee")]
         public async Task<IActionResult> RegisterEmployee(EmployeeResponse empRequest)
         {
@@ -150,7 +150,8 @@ namespace FeeCollectorApplication.Controllers
             return Ok();
         }
 
-        [Authorize(Roles = SD.Role_Admin)]
+        [Authorize(Policy = SD.Policy_AccountManager)]
+        //[Authorize(Roles = SD.Role_Admin)]
         [HttpPost("reject/employee")]
         public async Task<IActionResult> RejectEmployee(EmployeeResponse empRequest)
         {
