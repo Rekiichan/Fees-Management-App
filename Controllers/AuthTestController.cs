@@ -5,6 +5,9 @@ using FeeCollectorApplication.Utility;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using System.Data;
+using System.Linq;
 using System.Security.Claims;
 
 namespace FeeCollectorApplication.Controllers
@@ -22,60 +25,53 @@ namespace FeeCollectorApplication.Controllers
             _userManager = userManager;
         }
 
-        private UserVM getUserVM (string role)
-        {
-            var name = User.Claims.First().Value.ToString();
-            var model = _db.User.FirstOrDefault(u => u.Name == name);
-            UserVM userVM = new UserVM()
-            {
-                Id = model.Id,
-                Name = name,
-                Email = model.Email,
-                PhoneNumber = model.PhoneNumber,
-                Role = role
-            };
-            return userVM;
-        }
-
         [AllowAnonymous]
         [HttpGet("me")]
-        public async Task<IActionResult >TestRole()
+        public async Task<IActionResult> TestRole()
         {
-            var isAdmin = User.HasClaim(c => c.Type == ClaimTypes.Role && c.Value == SD.Role_Admin);
-            if (isAdmin)
+            string UserId;
+            try
             {
-                return Ok(getUserVM(SD.Role_Admin));
+                UserId = User.Claims.FirstOrDefault(u => u.Type == "id").Value;
             }
-            var isEmployee = User.HasClaim(c => c.Type == ClaimTypes.Role && c.Value == SD.Role_Employee);
-            if (isEmployee)
+            catch
             {
-                return Ok(getUserVM(SD.Role_Employee));
+                return BadRequest("This user hasn't authenticated");
             }
-            else 
+
+            var ApplicationUser = await _db.User.FirstOrDefaultAsync(u => u.Id == UserId);
+            var UserRoles = await _userManager.GetRolesAsync(ApplicationUser);
+
+            UserVM userVM = new UserVM()
             {
-                return Ok(getUserVM(SD.Role_Customer));
-            }
+                Id = ApplicationUser.Id,
+                Name = ApplicationUser.Name,
+                Email = ApplicationUser.Email,
+                PhoneNumber = ApplicationUser.PhoneNumber,
+                Role = UserRoles.ToList()
+            };
+            return Ok(userVM);
         }
 
-        [HttpGet("CheckAuthentication")]
+        [HttpGet("check-authentication")]
         public IActionResult CheckAuthentication()
         {
             return Ok("authencation success!");
         }
         [Authorize(Roles = SD.Role_Admin)]
-        [HttpGet("CheckIsAdmin")]
+        [HttpGet("check-is-admin")]
         public IActionResult CheckAdmin()
         {
             return Ok("role admin");
         }
         [Authorize(Roles = SD.Role_Employee)]
-        [HttpGet("CheckIsEmployee")]
+        [HttpGet("check-is-employee")]
         public IActionResult CheckEmp()
         {
             return Ok("Role Employee");
         }
         [Authorize(Roles = SD.Role_Customer)]
-        [HttpGet("CheckIsCustomer")]
+        [HttpGet("check-is-customer")]
         public IActionResult CheckCustomer()
         {
             return Ok("Role customer");
