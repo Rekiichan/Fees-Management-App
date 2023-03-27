@@ -1,4 +1,5 @@
 ﻿using FeeCollectorApplication.Models;
+using FeeCollectorApplication.Models.ViewModel;
 using FeeCollectorApplication.Repository.IRepository;
 using FeeCollectorApplication.Utility;
 using Microsoft.AspNetCore.Authorization;
@@ -18,7 +19,8 @@ namespace FeeCollectorApplication.Controllers
         private readonly IUnitOfWork _unit;
         private readonly IConfiguration _configuration;
         private readonly UserManager<ApplicationUser> _userManager;
-        public BillController(IUnitOfWork unit, IConfiguration configuration, UserManager<ApplicationUser> userManager)
+        public BillController(IUnitOfWork unit, IConfiguration configuration,
+            UserManager<ApplicationUser> userManager)
         {
             _unit = unit;
             _configuration = configuration;
@@ -28,8 +30,21 @@ namespace FeeCollectorApplication.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAllBills()
         {
-            var model = await _unit.Bill.GetAllAsync();
-            return Ok(model);
+            var EmployeeId = User.Claims.FirstOrDefault(u => u.Type == "id").Value;
+            var applicationUser = await _unit.ApplicationUser.GetFirstOrDefaultAsync(u => u.Id == EmployeeId);
+            var UserRole = await _userManager.GetRolesAsync(applicationUser);
+
+            foreach (var item in UserRole)
+            {
+                if (item == SD.Role_Admin)
+                {
+                    var AllBills = await _unit.Bill.GetAllAsync();
+                    return Ok(AllBills);
+                }
+            }
+
+            var BillsList = await _unit.Bill.GetAllAsync(u => u.UserId == EmployeeId);
+            return Ok(BillsList);
         }
 
         //[AllowAnonymous]
@@ -49,17 +64,15 @@ namespace FeeCollectorApplication.Controllers
         [HttpGet("get-bill-based-on-emp")]
         public async Task<IActionResult> GetAllBillByEmp()
         {
-            // Get claim from User that get from ControlerBase
-            var claimIdentities = User.Claims.ToList();
-
             // Get id from claim
-            var EmployeeId = claimIdentities[1].Value;
+            var EmployeeId = User.Claims.FirstOrDefault(u => u.Type == "id").Value;
 
             // get all bills of employee
             var model = await _unit.Bill.GetAllAsync(u => u.UserId == EmployeeId);
 
             return Ok(model);
         }
+
         //[AllowAnonymous]
         //[Authorize(Roles = SD.Role_Employee)]
         //[Authorize(Roles = SD.Role_Admin + "," + SD.Role_Employee)]
@@ -92,11 +105,8 @@ namespace FeeCollectorApplication.Controllers
             DateTime timeStart = DateTime.UtcNow.AddHours(7);
             DateTime timeEnd = timeStart.AddHours(2);
 
-            // Get claim from User that get from ControlerBase
-            var claimIdentities = User.Claims.ToList();
-
             // Get id from claim
-            var EmployeeId = claimIdentities[1].Value;
+            var EmployeeId = User.Claims.FirstOrDefault(u => u.Type == "id").Value;
 
             var newBillModel = new Bill()
             {
@@ -118,7 +128,7 @@ namespace FeeCollectorApplication.Controllers
             string response = _configuration.GetValue<string>("DomainName:Domain") + "/api/information/" + newBillModel.LicensePlate;
             return Ok(response);
         }
-        //[Authorize(Roles = SD.Role_Admin)]
+        [Authorize(Roles = SD.Role_Admin)]
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateBill(int id, BillUpsert obj)
         {
@@ -127,9 +137,9 @@ namespace FeeCollectorApplication.Controllers
             {
                 return BadRequest();
             }
-            
+
             var newFee = await _unit.VehicleType.GetFirstOrDefaultAsync(u => u.Id == obj.VehicleTypeId);
-            
+
             model.Location = obj.Location;
             model.ImageUrl = obj.ImageUrl;
             model.LicensePlate = obj.LicensePlate;
