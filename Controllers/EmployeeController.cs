@@ -9,7 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace FeeCollectorApplication.Controllers
 {
     [Route("api/[controller]")]
-    [Authorize(Roles = SD.Role_Employee)]
+    [Authorize(Roles = SD.Role_Employee + "," + SD.Role_Admin)]
     [ApiController]
     public class EmployeeController : ControllerBase
     {

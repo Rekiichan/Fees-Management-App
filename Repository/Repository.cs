@@ -32,7 +32,12 @@ namespace FeeCollectorApplication.Repository
 
         public async Task<IEnumerable<T>> GetLimitAsync(Expression<Func<T, bool>>? filter = null, int numberLimit = 10)
         {
+            if (DbSet.Count() == 0)
+            {
+                return Enumerable.Empty<T>();
+            }
             IQueryable<T> query = DbSet;
+            
             if (filter != null)
             {
                 query = query.Where(filter).Take(numberLimit);

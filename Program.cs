@@ -106,32 +106,32 @@ builder.Services.AddCors(p => p.AddPolicy("AllowAllHeadersPolicy", builder =>
 // add policy
 builder.Services.AddAuthorization(options =>
 {
-    options.AddPolicy(SD.Policy_BillManager, policyBuilder =>
+    options.AddPolicy(SD.Policy_RoleManager, policyBuilder =>
     {
         policyBuilder.RequireAuthenticatedUser();
-        policyBuilder.RequireRole(SD.Role_Employee, SD.Role_Admin);
+        policyBuilder.RequireRole(SD.Role_Admin);
     });
 
     options.AddPolicy(SD.Policy_SuperAdmin, policyBuilder =>
     {
         policyBuilder.RequireAuthenticatedUser();
-        policyBuilder.RequireRole(SD.Role_Admin);
-        policyBuilder.RequireUserName("rekii");
-    });
-
-    options.AddPolicy(SD.Policy_BillManager, policyBuilder =>
-    {
-        policyBuilder.RequireAuthenticatedUser();
-        policyBuilder.RequireRole(SD.Role_Employee, SD.Role_Admin);
-    });
-
-    options.AddPolicy(SD.Policy_BillManager, policyBuilder =>
-    {
-        policyBuilder.RequireAuthenticatedUser();
-        policyBuilder.RequireRole(SD.Role_Employee, SD.Role_Admin);
+        //policyBuilder.RequireRole(SD.Role_Admin);
+        policyBuilder.RequireClaim("Name", "Dao Trong Nhan");
     });
 
     options.AddPolicy(SD.Policy_AccountManager, policyBuilder =>
+    {
+        policyBuilder.RequireAuthenticatedUser();
+        policyBuilder.RequireRole(SD.Role_Employee, SD.Role_Admin);
+    });
+
+    options.AddPolicy(SD.Policy_BillManager, policyBuilder =>
+    {
+        policyBuilder.RequireAuthenticatedUser();
+        policyBuilder.RequireRole(SD.Role_Employee, SD.Role_Admin);
+    });
+
+    options.AddPolicy(SD.Policy_RoleManager, policyBuilder =>
     {
         policyBuilder.RequireAuthenticatedUser();
         policyBuilder.RequireRole(SD.Role_Admin);

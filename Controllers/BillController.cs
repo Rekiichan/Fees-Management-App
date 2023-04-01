@@ -11,7 +11,6 @@ using System.Security.Claims;
 namespace FeeCollectorApplication.Controllers
 {
     [Route("api/bill")]
-    //[Authorize(Roles = SD.Role_Admin + "," + SD.Role_Employee)]
     [Authorize(Policy = SD.Policy_BillManager)]
     [ApiController]
     public class BillController : ControllerBase
@@ -73,9 +72,6 @@ namespace FeeCollectorApplication.Controllers
             return Ok(model);
         }
 
-        //[AllowAnonymous]
-        //[Authorize(Roles = SD.Role_Employee)]
-        //[Authorize(Roles = SD.Role_Admin + "," + SD.Role_Employee)]
         [HttpPost]
         public async Task<IActionResult> AddBill(BillUpsert obj)
         {
@@ -107,6 +103,7 @@ namespace FeeCollectorApplication.Controllers
 
             // Get id from claim
             var EmployeeId = User.Claims.FirstOrDefault(u => u.Type == "id").Value;
+            string response = _configuration.GetValue<string>("DomainName:Domain") + "/api/information/" + obj.LicensePlate;
 
             var newBillModel = new Bill()
             {
@@ -120,12 +117,12 @@ namespace FeeCollectorApplication.Controllers
                 VehicleTypeId = obj.VehicleTypeId,
                 Longtitude = obj.Longtitude,
                 Latitude = obj.Latitude,
-                UserId = EmployeeId
+                UserId = EmployeeId,
+                PaymentUrl = response
             };
 
             await _unit.Bill.Add(newBillModel);
             await _unit.Save();
-            string response = _configuration.GetValue<string>("DomainName:Domain") + "/api/information/" + newBillModel.LicensePlate;
             return Ok(response);
         }
         [Authorize(Roles = SD.Role_Admin)]
@@ -150,6 +147,7 @@ namespace FeeCollectorApplication.Controllers
 
             var updateVehicleModel = await _unit.Vehicle.GetFirstOrDefaultAsync(u => u.LicensePlate == obj.LicensePlate);
             var listBillOfVehicle = await _unit.Bill.GetAllAsync(u => u.LicensePlate == updateVehicleModel.LicensePlate);
+
             float totalFee = 0;
             foreach (var item in listBillOfVehicle)
             {

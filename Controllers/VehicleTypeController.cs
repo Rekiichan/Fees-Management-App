@@ -8,7 +8,7 @@ namespace FeeCollectorApplication.Controllers
 {
     [ApiController]
     [Route("api/vehicletype")]
-    [Authorize]
+    [Authorize(Roles = SD.Role_Employee + "," + SD.Role_Admin)]
     public class VehicleTypeController : ControllerBase
     {
         private readonly IUnitOfWork _unitOfWork;
@@ -17,8 +17,6 @@ namespace FeeCollectorApplication.Controllers
             _unitOfWork = unitOfWork;
         }
         [HttpGet]
-        //[AllowAnonymous]
-        [Authorize(Roles = SD.Role_Employee + "," + SD.Role_Admin)]
         public async Task<IActionResult> GetAllVehicleType()
         {
             var model = await _unitOfWork.VehicleType.GetAllAsync();
@@ -26,8 +24,8 @@ namespace FeeCollectorApplication.Controllers
             return Ok(model);
         }
         //[AllowAnonymous]
-        [Authorize(Roles = SD.Role_Admin)]
         [HttpPost]
+        [Authorize(Roles = SD.Role_Admin)]
         public async Task<IActionResult> AddVehicleType(VehicleTypeUpsert obj)
         {
             if (obj == null)

@@ -18,7 +18,7 @@ namespace FeeCollectorApplication.Controllers
 {
     [Route("api/auth")]
     [ApiController]
-    [Authorize]
+    [Authorize(Policy = SD.Policy_AccountManager)]
     public class AuthController : ControllerBase
     {
         private readonly IUnitOfWork _unitOfWork;
@@ -88,7 +88,6 @@ namespace FeeCollectorApplication.Controllers
             return BadRequest(ModelState);
         }
 
-        [Authorize(Policy = SD.Policy_AccountManager)]
         [HttpPost("register/employee")]
         public async Task<IActionResult> RegisterEmployee(EmployeeResponse empRequest)
         {
@@ -150,8 +149,6 @@ namespace FeeCollectorApplication.Controllers
             return Ok();
         }
 
-        [Authorize(Policy = SD.Policy_AccountManager)]
-        //[Authorize(Roles = SD.Role_Admin)]
         [HttpPost("reject/employee")]
         public async Task<IActionResult> RejectEmployee(EmployeeResponse empRequest)
         {
