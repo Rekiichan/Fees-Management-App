@@ -56,7 +56,8 @@ namespace FeeCollectorApplication.Controllers
                 Email = model.Email,
                 NormalizedEmail = model.Email.ToUpper(),
                 Name = model.Name,
-                PhoneNumber = model.PhoneNumber
+                PhoneNumber = model.PhoneNumber,
+                Avatar = SD.ApiGetAvatar + model.Name
             };
             try
             {
@@ -105,7 +106,8 @@ namespace FeeCollectorApplication.Controllers
                 NormalizedEmail = empRequest.Email.ToUpper(),
                 Name = empRequest.Name,
                 PhoneNumber = empRequest.PhoneNumber,
-                citizenIdentification = empRequest.citizenIdentification
+                citizenIdentification = empRequest.citizenIdentification,
+                Avatar = SD.ApiGetAvatar + empRequest.Name
             };
             if (!(newEmployee.citizenIdentification.Length == 12 || newEmployee.citizenIdentification.Length == 9))
             {
@@ -181,7 +183,8 @@ namespace FeeCollectorApplication.Controllers
                 Email = model.Email,
                 NormalizedEmail = model.Email.ToUpper(),
                 Name = model.Name,
-                PhoneNumber = model.PhoneNumber
+                PhoneNumber = model.PhoneNumber,
+                Avatar = SD.ApiGetAvatar + model.Name
             };
             try
             {

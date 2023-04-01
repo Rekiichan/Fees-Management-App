@@ -10,6 +10,9 @@
         public const string Policy_BillManager = "BillManager";
         public const string Policy_AccountManager = "AccountManager";
         public const string Policy_RoleManager = "RoleManager";
-        
+
+        public const string ApiGetAvatar = "https://ui-avatars.com/api/?name=";
+
+
     }
 }

@@ -14,7 +14,7 @@ namespace FeeCollectorApplication.Models
         [Required]
         public string Address { get; set; }
         [Required]
-        public string citizenIdentification { get; set; } //REQUIRED
+        public string CitizenIdentification { get; set; } //REQUIRED
 
         public DateTime RequestAt { get; set; } = DateTime.UtcNow.AddHours(7);
     }

@@ -90,7 +90,7 @@ namespace FeeCollectorApplication.Migrations
                         .HasMaxLength(256)
                         .HasColumnType("nvarchar(256)");
 
-                    b.Property<string>("citizenIdentification")
+                    b.Property<string>("CitizenIdentification")
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
@@ -243,7 +243,7 @@ namespace FeeCollectorApplication.Migrations
                     b.Property<string>("UserName")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("citizenIdentification")
+                    b.Property<string>("CitizenIdentification")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 

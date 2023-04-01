@@ -72,7 +72,7 @@ namespace FeeCollectorApplication.Controllers
             {
                 return BadRequest("this user has already exist!!!");
             }
-            if (model.citizenIdentification == null)
+            if (model.CitizenIdentification == null)
             {
                 return BadRequest("this employee must have citizen identification");
             }
@@ -85,7 +85,7 @@ namespace FeeCollectorApplication.Controllers
                 PhoneNumber = model.PhoneNumber,
                 AvatarLink = model.AvatarLink,
                 Address = model.Address,
-                citizenIdentification = model.citizenIdentification
+                CitizenIdentification = model.CitizenIdentification
             };
             await _unitOfWork.EmployeeRequest.Add(newEmployeeRequest);
             await _unitOfWork.Save();

@@ -33,7 +33,7 @@ namespace FeeCollectorApplication.Migrations
                 defaultValue: new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified));
 
             migrationBuilder.AddColumn<string>(
-                name: "citizenIdentification",
+                name: "CitizenIdentification",
                 table: "AspNetUsers",
                 type: "nvarchar(max)",
                 nullable: true);
@@ -78,7 +78,7 @@ namespace FeeCollectorApplication.Migrations
                 table: "AspNetUsers");
 
             migrationBuilder.DropColumn(
-                name: "citizenIdentification",
+                name: "CitizenIdentification",
                 table: "AspNetUsers");
         }
     }
