@@ -12,7 +12,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Text;
 using System.Security.Claims;
 using Models.Models.Dto;
-
+using Microsoft.VisualBasic;
 
 namespace FeeCollectorApplication.Controllers
 {
@@ -22,13 +22,13 @@ namespace FeeCollectorApplication.Controllers
     public class AuthController : ControllerBase
     {
         private readonly IUnitOfWork _unitOfWork;
-        private readonly IEmailService _emailService;
+        private readonly IMailService _emailService;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly RoleManager<IdentityRole> _roleManager;
         private string secretKey;
         public AuthController(IUnitOfWork db, IConfiguration options,
             UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager,
-            IEmailService emailService)
+            IMailService emailService)
         {
             _unitOfWork = db;
             secretKey = options.GetValue<string>("ApiSettings:Secret");
@@ -57,7 +57,7 @@ namespace FeeCollectorApplication.Controllers
                 NormalizedEmail = model.Email.ToUpper(),
                 Name = model.Name,
                 PhoneNumber = model.PhoneNumber,
-                Avatar = SD.ApiGetAvatar + model.Name
+                Avatar = SD.ApiGetAvatar + model.Name.Replace(" ", "+")
             };
             try
             {
@@ -90,24 +90,33 @@ namespace FeeCollectorApplication.Controllers
         }
 
         [HttpPost("register/employee")]
-        public async Task<IActionResult> RegisterEmployee(EmployeeResponse empRequest)
+        public async Task<IActionResult> RegisterEmployee(int employeeRequestId)
         {
-            ApplicationUser userFromDb = await _unitOfWork.ApplicationUser.GetFirstOrDefaultAsync(u => u.NormalizedEmail == empRequest.Email.ToUpper()
-            || empRequest.citizenIdentification == u.citizenIdentification);
+            var EmpReqFromDb = await _unitOfWork.EmployeeRequest.GetFirstOrDefaultAsync(u => u.Id == employeeRequestId);
+            if (EmpReqFromDb == null)
+            {
+                ModelState.AddModelError("error", "Không tìm thấy hồ sơ nhân viên trong cơ sở dữ liệu");
+                return BadRequest(ModelState);
+            }
+
+            ApplicationUser userFromDb = await _unitOfWork.ApplicationUser.GetFirstOrDefaultAsync(u => u.NormalizedEmail == EmpReqFromDb.Email.ToUpper()
+            || EmpReqFromDb.CitizenIdentification == u.citizenIdentification);
+
             if (userFromDb != null)
             {
                 ModelState.AddModelError("error", "Email hoặc CCCD/CMND này đã được sử dụng, vui lòng thử cách khác");
                 return BadRequest(ModelState);
             }
+
             ApplicationUser newEmployee = new()
             {
-                UserName = empRequest.Email.ToLower().Split('@').First(),
-                Email = empRequest.Email,
-                NormalizedEmail = empRequest.Email.ToUpper(),
-                Name = empRequest.Name,
-                PhoneNumber = empRequest.PhoneNumber,
-                citizenIdentification = empRequest.citizenIdentification,
-                Avatar = SD.ApiGetAvatar + empRequest.Name
+                UserName = EmpReqFromDb.Email.ToLower().Split('@').First(),
+                Email = EmpReqFromDb.Email,
+                NormalizedEmail = EmpReqFromDb.Email.ToUpper(),
+                Name = EmpReqFromDb.Name,
+                PhoneNumber = EmpReqFromDb.PhoneNumber,
+                citizenIdentification = EmpReqFromDb.CitizenIdentification,
+                Avatar = SD.ApiGetAvatar + EmpReqFromDb.Name.Replace(" ", "+")
             };
             if (!(newEmployee.citizenIdentification.Length == 12 || newEmployee.citizenIdentification.Length == 9))
             {
@@ -152,17 +161,43 @@ namespace FeeCollectorApplication.Controllers
         }
 
         [HttpPost("reject/employee")]
-        public async Task<IActionResult> RejectEmployee(EmployeeResponse empRequest)
+        public async Task<IActionResult> RejectEmployee(int empRequestId)
         {
-            var employeeReject = await _unitOfWork.EmployeeRequest.GetFirstOrDefaultAsync(u => u.Email.ToLower() == empRequest.Email.ToLower());
-            if (employeeReject == null)
+            var EmpReqFromDb = await _unitOfWork.EmployeeRequest.GetFirstOrDefaultAsync(u => u.Id == empRequestId);
+            if (EmpReqFromDb == null)
             {
-                ModelState.AddModelError("error", "Nhân viên này không tồn tại, vui lòng kiểm tra lại");
+                ModelState.AddModelError("error", "Không tìm thấy hồ sơ nhân viên trong cơ sở dữ liệu");
                 return BadRequest(ModelState);
             }
-            _unitOfWork.EmployeeRequest.Remove(employeeReject);
+
+            _unitOfWork.EmployeeRequest.Remove(EmpReqFromDb);
             await _unitOfWork.Save();
             return Ok();
+        }
+
+        [HttpGet("get-list-employee-requests")]
+        public async Task<IActionResult> GetListEmployeeRequests()
+        {
+            var empRequest = await _unitOfWork.EmployeeRequest.GetAllAsync();
+            if (empRequest == null)
+            {
+                return BadRequest("No employee request found");
+            }
+
+            var RequestList = empRequest.ToList();
+            var datetime = DateTime.Now.AddHours(7);
+
+            foreach (var item in RequestList)
+            {
+                var value = datetime.Subtract(item.RequestAt).TotalHours;
+                if (value > 48.0)
+                {
+                    _unitOfWork.EmployeeRequest.Remove(item);
+                }
+            }
+
+            await _unitOfWork.Save();
+            return Ok(empRequest);
         }
 
         [AllowAnonymous]
@@ -184,7 +219,7 @@ namespace FeeCollectorApplication.Controllers
                 NormalizedEmail = model.Email.ToUpper(),
                 Name = model.Name,
                 PhoneNumber = model.PhoneNumber,
-                Avatar = SD.ApiGetAvatar + model.Name
+                Avatar = SD.ApiGetAvatar + model.Name.Replace(" ", "+")
             };
             try
             {
@@ -274,22 +309,41 @@ namespace FeeCollectorApplication.Controllers
         {
             if (IsValidEmail(model.Email))
             {
-                var user = await _unitOfWork.ApplicationUser.GetFirstOrDefaultAsync(x => x.Email == model.Email);
+                var user = await _unitOfWork.ApplicationUser.GetFirstOrDefaultAsync(x => x.Email == model.Email, false);
                 if (user == null)
                 {
-                    return BadRequest("this Email has not been already exist");
+                    return BadRequest("this email has not been already exist");
                 }
 
-                EmailDto emailRequest = new EmailDto()
-                {
-                    ToName = user.Name,
-                    ToEmailAddress = model.Email,
-                    Subject = "Please reset password",
-                    Body = $"Hi {user.Name},\r\nWe received a request to reset your Thuphigiaothong.com password.\r\nPlease click this Link: {model.Link} to reset your password\r\nAlternatively, you can directly change your password."
-                };
+                string link = "";
+                string subject = "Please reset password";
+                string toName = user.Name;
+                string toEmailAddress = user.Email;
+                string displayName = "Iot Device Store";
+                string body = $"Hi {user.Name},\r\nWe received a request to reset your Thuphigiaothong.com password." +
+                    $"\r\nPlease click this Link: {link} " +
+                    $"to reset your password\r\nAlternatively, you can directly change your password.";
 
-                await _emailService.SendMail(emailRequest);
-                return Ok("sent");
+                EmailDto mailData = new EmailDto(
+                    to: new List<string>()
+                    {
+                        toEmailAddress
+                    },
+                    subject: subject,
+                    body: body,
+                    displayName: displayName
+                    );
+
+                bool result = await _emailService.SendAsync(mailData, new CancellationToken());
+
+                if (result)
+                {
+                    return StatusCode(StatusCodes.Status200OK, "Mail has successfully been sent.");
+                }
+                else
+                {
+                    return StatusCode(StatusCodes.Status500InternalServerError, "An error occured. The Mail could not be sent.");
+                }
             }
             return BadRequest($"{model.Email} is an invalid Email address");
         }
@@ -319,16 +373,19 @@ namespace FeeCollectorApplication.Controllers
 
         private void SendMailRegisterEmployee(ApplicationUser employee, string password)
         {
-            EmailDto email = new EmailDto();
-            email.Subject = "Chúc mừng trở thành nhân viên của hệ thống thuphigiaothong.com";
-            email.Body = $"Đây là tài khoản của bạn:\n" +
+            EmailDto mailData = new EmailDto(
+                    to: new List<string>()
+                    {
+                        employee.Email
+                    },
+                    subject: "Chúc mừng trở thành nhân viên của Parking System",
+                    body: $"Đây là tài khoản của bạn:\n" +
                 $"Email: {employee.Email}\n" +
                 $"Tên đăng nhập: {employee.UserName}\n" +
                 $"Mật khẩu: {password}\n" +
-                $"\nVui lòng đổi mật khẩu ngay lập tức đề phòng người lạ truy cập bằng mật khẩu khởi tạo này";
-            email.ToName = employee.Name;
-            email.ToEmailAddress = employee.Email;
-            _emailService.SendMail(email);
+                $"\nVui lòng đổi mật khẩu ngay lập tức đề phòng người lạ truy cập bằng mật khẩu khởi tạo này"
+                    );
+            _emailService.SendAsync(mailData, new CancellationToken());
         }
 
         bool IsValidEmail(string email)

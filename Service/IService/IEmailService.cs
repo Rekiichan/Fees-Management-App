@@ -2,8 +2,8 @@
 
 namespace FeeCollectorApplication.Service.IService
 {
-    public interface IEmailService
+    public interface IMailService
     {
-        Task SendMail(EmailDto emailDto);
+        Task<bool> SendAsync(EmailDto mailData, CancellationToken ct);
     }
 }

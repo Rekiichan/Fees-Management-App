@@ -67,7 +67,7 @@ namespace FeeCollectorApplication.Controllers
         public async Task<IActionResult> RequestToRegisterEmployee([FromBody] EmployeeRegisterRequestDTO model)
         {
             var userFromDb = await _unitOfWork.ApplicationUser.GetAllAsync();
-            var checkIsExist = userFromDb.FirstOrDefault(u => u.Name.ToLower() == model.Name.ToLower() || u.Email.ToLower() == model.Email.ToLower());
+            var checkIsExist = userFromDb.FirstOrDefault(u => u.Email.ToLower() == model.Email.ToLower());
             if (checkIsExist != null)
             {
                 return BadRequest("this user has already exist!!!");
@@ -76,6 +76,18 @@ namespace FeeCollectorApplication.Controllers
             {
                 return BadRequest("this employee must have citizen identification");
             }
+            else if (model.CitizenIdentification.Length < 9)
+            {
+                return BadRequest("please enter the citizen identification again");
+            }
+            if (model.Email == null)
+            {
+                return BadRequest("this employee must have email address");
+            }
+            if (model.PhoneNumber == null)
+            {
+                return BadRequest("this employee must have phone number");
+            }
 
             var newEmployeeRequest = new EmployeeRequest()
             {
@@ -83,10 +95,10 @@ namespace FeeCollectorApplication.Controllers
                 Name = model.Name,
                 Email = model.Email,
                 PhoneNumber = model.PhoneNumber,
-                AvatarLink = model.AvatarLink,
                 Address = model.Address,
                 CitizenIdentification = model.CitizenIdentification
             };
+ 
             await _unitOfWork.EmployeeRequest.Add(newEmployeeRequest);
             await _unitOfWork.Save();
 
@@ -94,3 +106,4 @@ namespace FeeCollectorApplication.Controllers
         }
     }
 }
+
