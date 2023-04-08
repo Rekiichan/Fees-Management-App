@@ -16,3 +16,8 @@ deploy/
 /Utility/obj/
 /Service/obj/
 /Service/bin/
+
+
+/docker-compose.yml
+/.dockerignore
+/Dockerfile

@@ -1,12 +1,9 @@
 ﻿using FeeCollectorApplication.Models;
-using FeeCollectorApplication.Models.ViewModel;
 using FeeCollectorApplication.Repository.IRepository;
 using FeeCollectorApplication.Utility;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using System.Runtime.InteropServices;
-using System.Security.Claims;
 
 namespace FeeCollectorApplication.Controllers
 {
